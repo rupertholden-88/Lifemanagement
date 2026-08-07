@@ -23,6 +23,7 @@ export function InventoryItemFormModal({ open, onClose, onSave, initial, default
   const [stockLevel, setStockLevel] = useState<StockLevel>(initial?.stockLevel ?? 'medium')
   const [amazonUrl, setAmazonUrl] = useState(initial?.amazonUrl ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
+  const [aliases, setAliases] = useState((initial?.aliases ?? []).join(', '))
 
   if (!open) return null
 
@@ -39,6 +40,10 @@ export function InventoryItemFormModal({ open, onClose, onSave, initial, default
       stockLevel: trackingMode === 'level' ? stockLevel : undefined,
       amazonUrl: amazonUrl || undefined,
       notes: notes || undefined,
+      aliases: aliases
+        .split(',')
+        .map((a) => a.trim())
+        .filter(Boolean),
     })
     onClose()
   }
@@ -159,6 +164,22 @@ export function InventoryItemFormModal({ open, onClose, onSave, initial, default
             </label>
           </div>
         )}
+
+        <label className="block text-sm">
+          <span className="mb-1 block text-xs font-medium text-slate-600">
+            Also matches (optional)
+          </span>
+          <input
+            value={aliases}
+            onChange={(e) => setAliases(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+            placeholder="passata, plum tomatoes"
+          />
+          <span className="mt-1 block text-xs text-slate-400">
+            Extra names to recognise in recipe ingredients, comma separated. Use this when a recipe
+            calls something by a different name than you do.
+          </span>
+        </label>
 
         <label className="block text-sm">
           <span className="mb-1 block text-xs font-medium text-slate-600">Amazon reorder link (optional)</span>

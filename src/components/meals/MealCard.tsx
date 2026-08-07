@@ -1,6 +1,7 @@
 import { Badge, Button } from '../shared/ui'
 import type { Meal } from '../../types'
 import type { MealAvailability } from '../../lib/meals'
+import { shortIngredientLabel } from '../../lib/ingredientMatch'
 
 interface MealCardProps {
   meal: Meal
@@ -53,7 +54,8 @@ export function MealCard({
 
       {availability.missing.length > 0 && (
         <p className="mt-2 text-xs text-amber-700">
-          Missing: {availability.missing.join(', ')}
+          Missing: {availability.missing.slice(0, 6).map(shortIngredientLabel).join(', ')}
+          {availability.missing.length > 6 && ` +${availability.missing.length - 6} more`}
         </p>
       )}
 

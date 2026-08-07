@@ -146,6 +146,8 @@ export interface InventoryItem {
   unit?: string
   amazonUrl?: string
   notes?: string
+  /** Extra names this item should match in recipe ingredients, e.g. "passata" for Tinned tomatoes. */
+  aliases?: string[]
   trackingMode: TrackingMode
   /** Used when trackingMode === 'quantity' — a literal count, e.g. 4 tins. */
   quantity?: number

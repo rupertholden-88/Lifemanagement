@@ -3,6 +3,7 @@ import { useInventory } from '../../context/InventoryContext'
 import { useMeals } from '../../context/MealsContext'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
 import { getEffectiveLevel, isLowStock, findInventoryItem, STOCK_LEVEL_LABEL } from '../../lib/inventory'
+import { shortIngredientLabel } from '../../lib/ingredientMatch'
 import { Card, Button, EmptyState, Badge } from '../shared/ui'
 
 export function ShoppingList() {
@@ -27,7 +28,7 @@ export function ShoppingList() {
       if (!meal) continue
       for (const ingredient of meal.ingredients) {
         if (findInventoryItem(ingredient, items)) continue
-        const key = ingredient.toLowerCase()
+        const key = shortIngredientLabel(ingredient).toLowerCase()
         missing.set(key, [...(missing.get(key) ?? []), meal.name])
       }
     }

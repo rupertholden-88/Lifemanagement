@@ -96,4 +96,17 @@ export const SEED_INVENTORY: InventoryItem[] = [
   qty('Beef jerky', 'Pantry', 0, 'pack'),
   qty('Protein powder', 'Pantry', 1, 'tub'),
   qty('Butter or mayo', 'Fridge', 1, 'jar'),
+
+  // Store-cupboard staples most recipes assume you have. Included so imported
+  // recipes match sensibly rather than flagging salt and spices as missing.
+  qty('Salt', 'Store cupboard', 1, 'box'),
+  qty('Black pepper', 'Store cupboard', 1, 'grinder'),
+  qty('Chilli powder', 'Store cupboard', 1, 'jar'),
+  qty('Paprika', 'Store cupboard', 1, 'jar'),
+  qty('Cumin', 'Store cupboard', 1, 'jar'),
+  qty('Mixed herbs', 'Store cupboard', 1, 'jar'),
+  qty('Stock cubes', 'Store cupboard', 6, 'cubes', 2),
+  qty('Tomato purée', 'Store cupboard', 1, 'tube'),
+  qty('Sugar', 'Store cupboard', 1, 'bag'),
+  qty('Plain flour', 'Store cupboard', 1, 'bag'),
 ]

@@ -1,4 +1,5 @@
 import type { InventoryItem, StockLevel } from '../types'
+import { ingredientMatchesName } from './ingredientMatch'
 
 /** Normalises quantity- and level-tracked items to a single low/medium/high/out reading. */
 export function getEffectiveLevel(item: InventoryItem): StockLevel {
@@ -42,11 +43,22 @@ export function describeQuantity(item: InventoryItem): string {
 
 /** Case-insensitive match of a meal ingredient name against an inventory item name. */
 export function ingredientMatchesItem(ingredient: string, itemName: string): boolean {
-  const a = ingredient.trim().toLowerCase()
-  const b = itemName.trim().toLowerCase()
-  return a === b || a.includes(b) || b.includes(a)
+  return ingredientMatchesName(ingredient, itemName)
 }
 
+/** True if the ingredient matches the item's name or any of its manual aliases. */
+export function itemMatchesIngredient(item: InventoryItem, ingredient: string): boolean {
+  if (ingredientMatchesName(ingredient, item.name)) return true
+  return (item.aliases ?? []).some((alias) => ingredientMatchesName(ingredient, alias))
+}
+
+/**
+ * The inventory item a recipe ingredient refers to. Several items can match a
+ * loose ingredient ("1 onion" matches both Onion and Red onion), so an in-stock
+ * match is preferred over one that has run out.
+ */
 export function findInventoryItem(ingredient: string, items: InventoryItem[]): InventoryItem | undefined {
-  return items.find((i) => ingredientMatchesItem(ingredient, i.name))
+  const matches = items.filter((i) => itemMatchesIngredient(i, ingredient))
+  if (matches.length === 0) return undefined
+  return matches.find((i) => getEffectiveLevel(i) !== 'out') ?? matches[0]
 }
