@@ -1,5 +1,6 @@
-import { Badge } from '../shared/ui'
-import { getEffectiveLevel, STOCK_LEVEL_COLOR, STOCK_LEVEL_LABEL } from '../../lib/inventory'
+import { Tag } from '../shared/ui'
+import { MinusIcon, PlusIcon, ExternalLinkIcon } from '../shared/icons'
+import { getEffectiveLevel, STOCK_LEVEL_LABEL } from '../../lib/inventory'
 import type { InventoryItem, StockLevel } from '../../types'
 import { STOCK_LEVELS } from '../../types'
 
@@ -11,90 +12,72 @@ interface InventoryItemRowProps {
   onDelete: () => void
 }
 
-/** Left-edge accent so low and empty items stand out when scanning the list. */
-const LEVEL_ACCENT: Record<StockLevel, string> = {
-  out: 'border-l-red-400',
-  low: 'border-l-amber-400',
-  medium: 'border-l-sky-300',
-  high: 'border-l-emerald-400',
-}
-
 export function InventoryItemRow({ item, onAdjustQuantity, onSetLevel, onEdit, onDelete }: InventoryItemRowProps) {
   const level = getEffectiveLevel(item)
   const lowStock = level === 'out' || level === 'low'
 
   return (
-    <div className={`flex flex-col gap-3 rounded-xl border border-l-4 border-paper-200 bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between ${LEVEL_ACCENT[level]}`}>
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-medium text-navy-900">{item.name}</p>
-          <Badge className={STOCK_LEVEL_COLOR[level]}>{STOCK_LEVEL_LABEL[level]}</Badge>
-        </div>
-        {item.notes && <p className="mt-0.5 text-xs text-slate-400">{item.notes}</p>}
+    <div className="border-b-2 border-divider py-3.5">
+      <div className="mb-2.5 flex items-center gap-2.5">
+        <span className="min-w-0 flex-1 truncate font-heading text-[16px] font-semibold tracking-[-0.02em] text-ink">{item.name}</span>
+        <Tag tone={lowStock ? 'accent' : 'neutral'}>{STOCK_LEVEL_LABEL[level]}</Tag>
       </div>
+      {item.notes && <p className="mb-2 text-xs text-neutral-500">{item.notes}</p>}
 
-      <div className="flex flex-wrap items-center gap-2">
-        {item.trackingMode === 'quantity' ? (
-          <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-1.5 py-1">
+      {item.trackingMode === 'quantity' ? (
+        <div className="flex items-center gap-3.5">
+          <button
+            onClick={() => onAdjustQuantity(-1)}
+            aria-label={`Decrease ${item.name}`}
+            className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-divider text-neutral-600 hover:bg-neutral-100"
+          >
+            <MinusIcon width={16} height={16} />
+          </button>
+          <span className="text-sm text-neutral-700">
+            {item.quantity ?? 0} {item.unit}
+          </span>
+          <div className="flex-1" />
+          <button
+            onClick={() => onAdjustQuantity(1)}
+            aria-label={`Increase ${item.name}`}
+            className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-divider text-neutral-600 hover:bg-neutral-100"
+          >
+            <PlusIcon width={16} height={16} />
+          </button>
+        </div>
+      ) : (
+        <div className="flex gap-0.5 rounded-full bg-neutral-200 p-1">
+          {STOCK_LEVELS.map((lvl) => (
             <button
-              onClick={() => onAdjustQuantity(-1)}
-              className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-lg text-slate-600 shadow-sm hover:bg-slate-50"
-              aria-label={`Decrease ${item.name}`}
+              key={lvl}
+              onClick={() => onSetLevel(lvl)}
+              className={`min-h-10 flex-1 rounded-full px-2 font-heading text-[12.5px] font-semibold transition ${
+                item.stockLevel === lvl ? 'bg-ink text-paper' : 'text-neutral-700'
+              }`}
             >
-              −
+              {STOCK_LEVEL_LABEL[lvl]}
             </button>
-            <span className="w-16 text-center text-sm font-medium text-navy-900">
-              {item.quantity ?? 0} {item.unit}
-            </span>
-            <button
-              onClick={() => onAdjustQuantity(1)}
-              className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-lg text-slate-600 shadow-sm hover:bg-slate-50"
-              aria-label={`Increase ${item.name}`}
-            >
-              +
-            </button>
-          </div>
-        ) : (
-          <div className="flex overflow-hidden rounded-lg border border-slate-200 text-xs font-medium">
-            {STOCK_LEVELS.map((lvl) => (
-              <button
-                key={lvl}
-                onClick={() => onSetLevel(lvl)}
-                className={`min-h-10 px-3 py-2 transition ${
-                  item.stockLevel === lvl ? 'bg-navy-900 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'
-                }`}
-              >
-                {STOCK_LEVEL_LABEL[lvl]}
-              </button>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
+      )}
 
+      <div className="mt-2.5 flex flex-wrap items-center gap-3">
         {lowStock && item.amazonUrl && (
           <a
             href={item.amazonUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-10 items-center rounded-lg bg-orange-50 px-3 py-2 text-xs font-medium text-orange-700 hover:bg-orange-100"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-accent-700"
           >
-            Reorder on Amazon ↗
+            Reorder on Amazon <ExternalLinkIcon width={11} height={11} />
           </a>
         )}
-
-        <div className="ml-auto flex items-center gap-1">
-          <button
-            onClick={onEdit}
-            className="min-h-10 rounded-md px-3 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-          >
-            Edit
-          </button>
-          <button
-            onClick={onDelete}
-            className="min-h-10 rounded-md px-3 text-xs font-medium text-slate-400 hover:bg-red-50 hover:text-red-600"
-          >
-            Remove
-          </button>
-        </div>
+        <button onClick={onEdit} className="text-xs font-medium text-neutral-500 hover:text-ink">
+          Edit
+        </button>
+        <button onClick={onDelete} className="ml-auto text-xs font-medium text-neutral-500 hover:text-accent-700">
+          Remove
+        </button>
       </div>
     </div>
   )

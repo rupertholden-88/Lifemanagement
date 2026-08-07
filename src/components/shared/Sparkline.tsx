@@ -5,9 +5,9 @@ interface SparklineProps {
   color?: string
 }
 
-export function Sparkline({ values, width = 120, height = 32, color = '#0f766e' }: SparklineProps) {
+export function Sparkline({ values, width = 120, height = 32, color = 'var(--color-accent)' }: SparklineProps) {
   if (values.length < 2) {
-    return <div style={{ width, height }} className="flex items-center text-xs text-slate-400">Not enough data</div>
+    return <div style={{ width, height }} className="flex items-center text-xs text-neutral-500">Not enough data</div>
   }
 
   const min = Math.min(...values)

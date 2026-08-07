@@ -5,7 +5,7 @@ import { useMealOptions } from '../../hooks/useMealOptions'
 import { useCookMeal } from '../../hooks/useCookMeal'
 import { checkMealAvailability } from '../../lib/meals'
 import { getWeekDates, formatDayLabel, isoToday } from '../../lib/date'
-import { Card, Badge } from '../shared/ui'
+import { Banner, Button, Tag, inputClass } from '../shared/ui'
 import { SEED_MEALS } from '../../data/mealPlan'
 
 export function WeeklyPlan() {
@@ -39,33 +39,28 @@ export function WeeklyPlan() {
 
   return (
     <div>
-      {banner && (
-        <div className="mb-3 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">{banner}</div>
-      )}
+      {banner && <Banner>{banner}</Banner>}
 
-      <Card className="mb-6">
-        <p className="mb-1 text-sm font-semibold text-navy-900">Breakfast & lunch</p>
-        <p className="text-xs text-slate-500">
-          Same repeatable options every day — pick whichever's easiest.
-        </p>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+      <div className="mb-6 border-t-2 border-ink pt-4">
+        <p className="mb-1 text-[15px] font-semibold text-ink">Breakfast &amp; lunch</p>
+        <p className="mb-3 text-xs text-neutral-600">Same repeatable options every day — pick whichever&rsquo;s easiest.</p>
+        <div className="grid grid-cols-2 gap-2">
           {[...breakfast, ...lunch].map((m) => (
-            <div key={m.id} className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">
+            <div key={m.id} className="rounded-2xl bg-neutral-100 px-4 py-2.5 text-sm text-ink">
               {m.name}
             </div>
           ))}
         </div>
-      </Card>
+      </div>
 
-      <div className="mb-2">
-        <p className="text-sm font-semibold text-navy-900">Dinners</p>
-        <p className="text-xs text-slate-500">
-          One per night — change any day from the dropdown. “Cook this” logs it and takes the
-          ingredients out of your stock.
+      <div className="mb-2.5">
+        <p className="text-[15px] font-semibold text-ink">Dinners</p>
+        <p className="text-xs text-neutral-600">
+          One per night — change any day from the dropdown. &ldquo;Cook this&rdquo; logs it and takes the ingredients out of your stock.
         </p>
       </div>
 
-      <div className="space-y-2">
+      <div>
         {week.map(({ day, date }) => {
           const entry = weeklyPlan.find((e) => e.day === day)
           const meal = entry?.mealId ? findMeal(entry.mealId) : undefined
@@ -73,44 +68,32 @@ export function WeeklyPlan() {
           const cooked = meal ? loggedToday.has(meal.id) && date === today : false
 
           return (
-            <div
-              key={day}
-              className={`flex flex-col gap-2 rounded-xl border p-3.5 sm:flex-row sm:items-center sm:justify-between ${
-                date === today ? 'border-teal-300 bg-teal-50/50' : 'border-paper-200 bg-white'
-              }`}
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <div className="w-16 shrink-0 text-xs font-medium text-slate-400">{formatDayLabel(date)}</div>
-                <select
-                  value={entry?.mealId ?? ''}
-                  onChange={(e) => setWeeklyPlanDay(day, e.target.value || null)}
-                  className="min-h-10 min-w-0 flex-1 rounded-lg border border-slate-300 px-2 py-2 text-sm font-medium text-navy-900"
-                >
-                  <option value="">— choose dinner —</option>
-                  {dinnerOptions.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-center gap-2 pl-19 sm:shrink-0 sm:pl-0">
+            <div key={day} className={`border-t-2 py-4 ${date === today ? 'border-ink' : 'border-divider'}`}>
+              <div className="mb-2.5 flex items-center justify-between gap-2.5">
+                <span className="text-[11px] font-semibold tracking-[0.12em] text-neutral-600 uppercase">{formatDayLabel(date)}</span>
                 {availability && (
-                  <Badge className={availability.missing.length === 0 ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' : 'bg-amber-50 text-amber-700 ring-amber-600/20'}>
+                  <Tag tone={availability.missing.length === 0 ? 'neutral' : 'accent'}>
                     {availability.matched.length}/{meal!.ingredients.length} in stock
-                  </Badge>
-                )}
-                {meal && (
-                  <button
-                    onClick={() => handleCook(meal.id, date)}
-                    disabled={cooked}
-                    className="ml-auto min-h-10 whitespace-nowrap rounded-lg bg-teal-600 px-3 text-sm font-medium text-white transition hover:bg-teal-500 disabled:bg-slate-200 disabled:text-slate-500 sm:ml-0"
-                  >
-                    {cooked ? '✓ Cooked' : 'Cook this'}
-                  </button>
+                  </Tag>
                 )}
               </div>
+              <select
+                value={entry?.mealId ?? ''}
+                onChange={(e) => setWeeklyPlanDay(day, e.target.value || null)}
+                className={`${inputClass} mb-2.5`}
+              >
+                <option value="">— choose dinner —</option>
+                {dinnerOptions.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+              {meal && (
+                <Button variant={cooked ? 'done' : date === today ? 'primary' : 'secondary'} onClick={() => handleCook(meal.id, date)} disabled={cooked} className="w-full">
+                  {cooked ? 'Cooked ✓' : 'Cook this'}
+                </Button>
+              )}
             </div>
           )
         })}

@@ -16,75 +16,43 @@ export function AppShell({ section, onSectionChange }: AppShellProps) {
   const { email, localMode, signOutUser } = useAuth()
 
   return (
-    <div className="min-h-screen bg-paper-50 lg:flex">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-navy-900 bg-gradient-to-b from-navy-950 to-navy-900 px-4 py-6 lg:flex">
-        <div className="mb-8 px-2">
-          <span className="font-display text-xl font-semibold text-white">Life Management</span>
-        </div>
-        <nav className="flex flex-1 flex-col gap-1">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onSectionChange(item.id)}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition ${
-                section === item.id
-                  ? 'bg-teal-600 text-white'
-                  : 'text-slate-300 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="mt-6 border-t border-white/10 pt-4 text-xs text-slate-400">
-          {localMode ? (
-            <p>Local-only mode — data stays on this device.</p>
-          ) : (
-            <div className="space-y-2">
-              <p className="truncate text-slate-300">{email}</p>
-              <button
-                onClick={() => signOutUser()}
-                className="rounded-md bg-white/5 px-2.5 py-1.5 text-slate-200 transition hover:bg-white/10"
-              >
-                Sign out
-              </button>
-            </div>
-          )}
-        </div>
-      </aside>
-
-      {/* Mobile top bar */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-paper-200 bg-paper-50/95 px-4 py-3 backdrop-blur lg:hidden">
-        <span className="font-display text-lg font-semibold text-navy-900">Life Management</span>
+    <div className="flex min-h-screen flex-col items-center bg-paper text-ink">
+      <header className="sticky top-0 z-20 flex w-full max-w-[560px] items-center justify-between border-b-2 border-divider bg-paper/95 px-5 py-3 backdrop-blur">
+        <span className="font-heading text-[15px] font-semibold tracking-[-0.01em]">Life Management</span>
         {!localMode && (
-          <button onClick={() => signOutUser()} className="text-sm font-medium text-teal-700">
+          <button onClick={() => signOutUser()} className="font-heading text-[13px] font-semibold text-accent-700">
             Sign out
           </button>
         )}
+        {localMode && <span className="text-xs text-neutral-500">Local-only</span>}
       </header>
 
-      <main className="flex-1 px-4 pb-24 pt-4 sm:px-6 sm:pb-10 sm:pt-6 lg:px-10 lg:py-8">
-        <div className="mx-auto max-w-5xl">
-          <SectionContent section={section} onNavigate={onSectionChange} />
-        </div>
+      <main className="w-full max-w-[560px] flex-1 px-5 pt-5 pb-28">
+        <SectionContent section={section} onNavigate={onSectionChange} />
+        {!localMode && email && (
+          <p className="mt-10 truncate border-t-2 border-divider pt-3 text-xs text-neutral-500">{email}</p>
+        )}
       </main>
 
-      {/* Mobile bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-paper-200 bg-white/95 backdrop-blur lg:hidden">
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onSectionChange(item.id)}
-            className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-xs font-medium transition ${
-              section === item.id ? 'text-teal-600' : 'text-slate-400'
-            }`}
-          >
-            <span className="text-lg">{item.icon}</span>
-            {item.label}
-          </button>
-        ))}
+      <nav className="fixed inset-x-0 bottom-0 z-20 flex justify-center border-t-2 border-ink bg-neutral-100">
+        <div className="grid w-full max-w-[560px] grid-cols-5 gap-0.5 px-2 pt-2.5" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
+          {NAV_ITEMS.map((item) => {
+            const active = section === item.id
+            const ItemIcon = item.icon
+            return (
+              <button
+                key={item.id}
+                onClick={() => onSectionChange(item.id)}
+                className={`flex min-h-11 flex-col items-center gap-1 rounded-full py-2 font-heading text-[10.5px] font-semibold transition ${
+                  active ? 'bg-accent text-white' : 'text-neutral-600 hover:text-ink'
+                }`}
+              >
+                <ItemIcon width={21} height={21} />
+                {item.label}
+              </button>
+            )
+          })}
+        </div>
       </nav>
     </div>
   )

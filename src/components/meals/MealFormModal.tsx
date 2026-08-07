@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Modal, Button } from '../shared/ui'
+import { Modal, Button, TextInput, TextArea, inputClass } from '../shared/ui'
 import type { Meal, MealType } from '../../types'
 
 interface MealFormModalProps {
@@ -38,24 +38,15 @@ export function MealFormModal({ open, onClose, onSave, initial }: MealFormModalP
 
   return (
     <Modal open={open} onClose={onClose} title={initial ? 'Edit meal' : 'Add a meal'}>
-      <div className="space-y-3">
+      <div className="space-y-4">
         <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Name</span>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-            placeholder="e.g. Fajitas"
-          />
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Name</span>
+          <TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Fajitas" autoFocus />
         </label>
 
         <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Meal type</span>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as MealType)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          >
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Meal type</span>
+          <select value={type} onChange={(e) => setType(e.target.value as MealType)} className={inputClass}>
             {MEAL_TYPES.map((t) => (
               <option key={t} value={t}>
                 {t[0].toUpperCase() + t.slice(1)}
@@ -65,62 +56,44 @@ export function MealFormModal({ open, onClose, onSave, initial }: MealFormModalP
         </label>
 
         <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Ingredients (comma separated)</span>
-          <textarea
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Ingredients (comma separated)</span>
+          <TextArea
             value={ingredients}
             onChange={(e) => setIngredients(e.target.value)}
             rows={2}
-            className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
             placeholder="chicken breast, rice, mixed vegetables"
           />
-          <span className="mt-1 block text-xs text-slate-400">
-            Matched against your inventory names to check what you can make now.
-          </span>
+          <span className="mt-1 block text-xs text-neutral-500">Matched against your inventory names to check what you can make now.</span>
         </label>
 
         <div className="grid grid-cols-2 gap-3">
           <label className="text-sm">
-            <span className="mb-1 block text-xs font-medium text-slate-600">kcal</span>
-            <input
-              type="number"
-              value={kcal}
-              onChange={(e) => setKcal(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
+            <span className="mb-1.5 block text-xs font-medium text-neutral-600">kcal</span>
+            <TextInput type="number" value={kcal} onChange={(e) => setKcal(e.target.value)} />
           </label>
           <label className="text-sm">
-            <span className="mb-1 block text-xs font-medium text-slate-600">Protein (g)</span>
-            <input
-              type="number"
-              value={protein}
-              onChange={(e) => setProtein(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
+            <span className="mb-1.5 block text-xs font-medium text-neutral-600">Protein (g)</span>
+            <TextInput type="number" value={protein} onChange={(e) => setProtein(e.target.value)} />
           </label>
         </div>
 
         <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Notes</span>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={2}
-            className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-          />
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Notes</span>
+          <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
         </label>
 
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2.5 text-sm">
           <input
             type="checkbox"
             checked={liked}
             onChange={(e) => setLiked(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+            className="h-5 w-5 rounded border-2 border-divider accent-accent focus:ring-accent"
           />
           I like this meal
         </label>
       </div>
 
-      <div className="mt-5 flex justify-end gap-2">
+      <div className="mt-6 flex justify-end gap-2">
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>

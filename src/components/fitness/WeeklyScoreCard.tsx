@@ -1,4 +1,5 @@
-import { Card, ProgressBar } from '../shared/ui'
+import { ProgressBar } from '../shared/ui'
+import { FlameIcon } from '../shared/icons'
 
 interface WeeklyScoreCardProps {
   earned: number
@@ -11,23 +12,30 @@ interface WeeklyScoreCardProps {
 export function WeeklyScoreCard({ earned, max, sessionsLogged, totalSessions, streak }: WeeklyScoreCardProps) {
   const percent = max > 0 ? earned / max : 0
   return (
-    <Card className="bg-gradient-to-br from-navy-900 to-navy-800 text-white">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-teal-300">This week's score</p>
-          <p className="font-display mt-1 text-3xl font-semibold">
-            {earned} <span className="text-lg font-normal text-slate-300">/ {max} pts</span>
-          </p>
+    <div>
+      <div className="grid grid-cols-3 border-t-2 border-ink border-b-2 border-divider">
+        <div className="py-3.5 pr-2.5">
+          <p className="mb-1.5 text-[10px] font-semibold tracking-[0.12em] text-neutral-600 uppercase">Score</p>
+          <p className="text-[28px] leading-none font-semibold tracking-[-0.03em] text-ink">{earned}</p>
         </div>
-        <div className="text-right">
-          <p className="text-2xl font-semibold">{Math.round(percent * 100)}%</p>
-          <p className="text-xs text-slate-300">{sessionsLogged}/{totalSessions} sessions</p>
+        <div className="border-l-2 border-divider py-3.5 px-2.5">
+          <p className="mb-1.5 text-[10px] font-semibold tracking-[0.12em] text-neutral-600 uppercase">Done</p>
+          <p className="text-[28px] leading-none font-semibold tracking-[-0.03em] text-ink">{Math.round(percent * 100)}%</p>
+        </div>
+        <div className="border-l-2 border-divider py-3.5 px-2.5">
+          <p className="mb-1.5 text-[10px] font-semibold tracking-[0.12em] text-neutral-600 uppercase">Streak</p>
+          <p className="text-[28px] leading-none font-semibold tracking-[-0.03em] text-ink">{streak}d</p>
         </div>
       </div>
-      <ProgressBar value={percent} className="mt-4 bg-white/10" />
+      <div className="mt-3 flex items-center gap-3">
+        <ProgressBar value={percent} className="flex-1" />
+        <span className="shrink-0 text-xs text-neutral-600">{sessionsLogged}/{totalSessions} sessions</span>
+      </div>
       {streak > 0 && (
-        <p className="mt-3 text-sm text-teal-200">🔥 {streak}-day streak</p>
+        <p className="mt-2.5 flex items-center gap-1.5 text-[13px] text-accent-700">
+          <FlameIcon width={14} height={14} /> {streak}-day streak
+        </p>
       )}
-    </Card>
+    </div>
   )
 }

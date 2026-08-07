@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useRecipes } from '../../context/RecipesContext'
 import { RecipeImport } from './RecipeImport'
 import { RecipeCard } from './RecipeCard'
-import { SectionTitle, Button, EmptyState, Modal } from '../shared/ui'
+import { Button, EmptyState, Modal, Banner, TextInput, TextArea } from '../shared/ui'
+import { RecipesIcon } from '../shared/icons'
 import type { Recipe } from '../../types'
 
 export function RecipesTab() {
@@ -20,51 +21,38 @@ export function RecipesTab() {
 
   return (
     <div>
-      <div className="mb-4 flex items-start justify-between">
-        <SectionTitle
-          title="Recipe bank"
-          subtitle="Save recipe links — every recipe here is automatically available as a dinner in Meals"
-        />
-        <Button variant="secondary" onClick={() => setManualOpen(true)}>
-          + Add manually
-        </Button>
-      </div>
+      <p className="mb-2.5 text-[11px] font-semibold tracking-[0.16em] text-accent-700">{sorted.length} saved recipe{sorted.length === 1 ? '' : 's'}</p>
+      <h1 className="mb-5 text-[36px] leading-[1.05] font-semibold tracking-[-0.03em] text-ink">Recipe bank</h1>
 
-      {banner && <div className="mb-4 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">{banner}</div>}
+      {banner && <Banner>{banner}</Banner>}
 
-      <div className="mb-6">
+      <div className="mb-2">
         <RecipeImport onImported={handleImported} />
       </div>
+      <button onClick={() => setManualOpen(true)} className="mb-6 font-heading text-[13px] font-semibold text-accent-700">
+        + Add manually instead
+      </button>
 
       {sorted.length === 0 ? (
-        <EmptyState
-          icon="📖"
-          title="No recipes saved yet"
-          description="Paste a recipe link above, or add one manually."
-        />
+        <EmptyState icon={<RecipesIcon width={28} height={28} />} title="No recipes saved yet" description="Paste a recipe link above, or add one manually." />
       ) : (
-        <div className="space-y-3">
+        <div>
           {sorted.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              onToggleLiked={() => toggleLiked(recipe.id)}
-              onDelete={() => deleteRecipe(recipe.id)}
-            />
+            <RecipeCard key={recipe.id} recipe={recipe} onToggleLiked={() => toggleLiked(recipe.id)} onDelete={() => deleteRecipe(recipe.id)} />
           ))}
         </div>
       )}
 
       {manualOpen && (
-      <ManualRecipeModal
-        open
-        onClose={() => setManualOpen(false)}
-        onSave={(data) => {
-          addRecipe({ ...data, liked: true })
-          setBanner(`Added "${data.title}"`)
-          setTimeout(() => setBanner(null), 5000)
-        }}
-      />
+        <ManualRecipeModal
+          open
+          onClose={() => setManualOpen(false)}
+          onSave={(data) => {
+            addRecipe({ ...data, liked: true })
+            setBanner(`Added "${data.title}"`)
+            setTimeout(() => setBanner(null), 5000)
+          }}
+        />
       )}
     </div>
   )
@@ -103,45 +91,25 @@ function ManualRecipeModal({
 
   return (
     <Modal open={open} onClose={onClose} title="Add a recipe manually">
-      <div className="space-y-3">
+      <div className="space-y-4">
         <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Title</span>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-            autoFocus
-          />
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Title</span>
+          <TextInput value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Link (optional)</span>
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            placeholder="https://…"
-          />
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Link (optional)</span>
+          <TextInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Ingredients (one per line)</span>
-          <textarea
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-            rows={4}
-            className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-          />
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Ingredients (one per line)</span>
+          <TextArea value={ingredients} onChange={(e) => setIngredients(e.target.value)} rows={4} />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Method (one step per line)</span>
-          <textarea
-            value={steps}
-            onChange={(e) => setSteps(e.target.value)}
-            rows={4}
-            className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-          />
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Method (one step per line)</span>
+          <TextArea value={steps} onChange={(e) => setSteps(e.target.value)} rows={4} />
         </label>
       </div>
-      <div className="mt-5 flex justify-end gap-2">
+      <div className="mt-6 flex justify-end gap-2">
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>

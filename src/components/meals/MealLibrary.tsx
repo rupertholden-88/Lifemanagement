@@ -5,7 +5,7 @@ import { useMealOptions, isRecipeMeal } from '../../hooks/useMealOptions'
 import { checkMealAvailability } from '../../lib/meals'
 import { MealCard } from './MealCard'
 import { MealFormModal } from './MealFormModal'
-import { Button, SectionTitle, Badge } from '../shared/ui'
+import { Button, Tag } from '../shared/ui'
 import type { Meal } from '../../types'
 
 export function MealLibrary() {
@@ -41,18 +41,14 @@ export function MealLibrary() {
 
   return (
     <div>
-      <div className="mb-4 flex items-start justify-between">
-        <SectionTitle
-          title="Meal library"
-          subtitle="Every meal you can plan — including everything saved in your recipe bank"
-        />
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <p className="text-[15px] font-semibold text-ink">Every meal you can plan</p>
         <Button onClick={openNew}>+ Add meal</Button>
       </div>
 
       {recipeCount > 0 && (
-        <p className="mb-3 text-xs text-slate-500">
-          {recipeCount} of these come from your recipe bank — marked{' '}
-          <Badge className="bg-violet-50 text-violet-700 ring-violet-600/20">Recipe</Badge>.
+        <p className="mb-3 text-xs text-neutral-600">
+          {recipeCount} of these come from your recipe bank — marked <Tag tone="accent">Recipe</Tag>.
         </p>
       )}
 
@@ -70,9 +66,7 @@ export function MealLibrary() {
         ))}
       </div>
 
-      {formOpen && (
-        <MealFormModal open onClose={() => setFormOpen(false)} onSave={handleSave} initial={editing} />
-      )}
+      {formOpen && <MealFormModal open onClose={() => setFormOpen(false)} onSave={handleSave} initial={editing} />}
     </div>
   )
 }

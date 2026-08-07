@@ -4,7 +4,8 @@ import { useSettings } from '../../context/SettingsContext'
 import { FITNESS_RULES, HEART_RATE_ZONES, QUALITY_RUN_ROTATION, WEEKLY_MAX_POINTS, scheduleForWfhDay } from '../../data/fitnessPlan'
 import { getWeekDates, formatDayLabel, weekRangeLabel, weeksSince, isoToday } from '../../lib/date'
 import { weeklyScoreFor, computeStreak } from '../../lib/fitnessScoring'
-import { SectionTitle, Card, Button } from '../shared/ui'
+import { Card, IconButton } from '../shared/ui'
+import { ChevronLeftIcon, ChevronRightIcon } from '../shared/icons'
 import { SessionCard } from './SessionCard'
 import { SessionLogModal } from './SessionLogModal'
 import { WeeklyScoreCard } from './WeeklyScoreCard'
@@ -33,43 +34,44 @@ export function FitnessTab() {
 
   return (
     <div>
-      <SectionTitle
-        title="Fitness"
-        subtitle="Your weekly training plan — log sessions and track progress"
-        action={
-          <label className="flex shrink-0 items-center gap-2 text-sm text-slate-600">
-            WFH day
-            <select
-              value={wfhDay}
-              onChange={(e) => setWfhDay(e.target.value as DayOfWeek)}
-              className="min-h-10 rounded-lg border border-slate-300 px-2 py-2 text-sm font-medium text-navy-900"
-              title="Strength B (the longer session) follows your work-from-home day"
-            >
-              {DAYS_OF_WEEK.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </label>
-        }
-      />
+      <p className="mb-2.5 text-[11px] font-semibold tracking-[0.16em] text-accent-700">{weekRangeLabel(week).toUpperCase()}</p>
+      <h1 className="mb-5 text-[36px] leading-[1.05] font-semibold tracking-[-0.03em] text-ink">Fitness</h1>
 
-      <WeeklyScoreCard
-        earned={score.earned}
-        max={WEEKLY_MAX_POINTS}
-        sessionsLogged={score.sessionsLogged}
-        totalSessions={schedule.filter((s) => s.type !== 'rest').length}
-        streak={streak}
-      />
-
-      <div className="mt-6 mb-3 flex items-center justify-between">
-        <Button variant="ghost" onClick={() => setWeekOffset((w) => w - 1)}>← Prev</Button>
-        <p className="text-sm font-medium text-slate-600">{weekRangeLabel(week)}</p>
-        <Button variant="ghost" onClick={() => setWeekOffset((w) => w + 1)}>Next →</Button>
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <IconButton onClick={() => setWeekOffset((w) => w - 1)} aria-label="Previous week">
+          <ChevronLeftIcon width={16} height={16} />
+        </IconButton>
+        <label className="flex items-center gap-2 text-[13px] text-neutral-600">
+          WFH day
+          <select
+            value={wfhDay}
+            onChange={(e) => setWfhDay(e.target.value as DayOfWeek)}
+            className="min-h-10 rounded-full border-2 border-divider bg-neutral-100 px-3 py-1.5 font-heading text-[13px] font-semibold text-ink"
+            title="Strength B (the longer session) follows your work-from-home day"
+          >
+            {DAYS_OF_WEEK.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </label>
+        <IconButton onClick={() => setWeekOffset((w) => w + 1)} aria-label="Next week">
+          <ChevronRightIcon width={16} height={16} />
+        </IconButton>
       </div>
 
-      <div className="space-y-2.5">
+      <div className="mb-6">
+        <WeeklyScoreCard
+          earned={score.earned}
+          max={WEEKLY_MAX_POINTS}
+          sessionsLogged={score.sessionsLogged}
+          totalSessions={schedule.filter((s) => s.type !== 'rest').length}
+          streak={streak}
+        />
+      </div>
+
+      <div>
         {week.map(({ day, date }) => {
           const session = schedule.find((s) => s.day === day)
           if (!session) return null
@@ -82,9 +84,7 @@ export function FitnessTab() {
               isToday={date === today}
               log={log}
               qualityTitle={session.type === 'run-quality' ? qualityWeek.title : undefined}
-              onOpen={() =>
-                setActiveSession({ session, date, dateLabel: formatDayLabel(date) })
-              }
+              onOpen={() => setActiveSession({ session, date, dateLabel: formatDayLabel(date) })}
             />
           )
         })}
@@ -94,21 +94,23 @@ export function FitnessTab() {
         <ProgressMetrics />
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-8 space-y-6">
         <Card>
-          <p className="mb-2 text-sm font-semibold text-navy-900">Heart rate zones</p>
-          <div className="space-y-2">
+          <p className="mb-3 text-[15px] font-semibold text-ink">Heart rate zones</p>
+          <div className="space-y-3">
             {HEART_RATE_ZONES.map((z) => (
               <div key={z.zone} className="text-sm">
-                <p className="font-medium text-slate-700">{z.zone} <span className="font-normal text-slate-400">· {z.range}</span></p>
-                <p className="text-xs text-slate-500">{z.usedFor}</p>
+                <p className="font-medium text-ink">
+                  {z.zone} <span className="font-normal text-neutral-500">· {z.range}</span>
+                </p>
+                <p className="text-xs text-neutral-600">{z.usedFor}</p>
               </div>
             ))}
           </div>
         </Card>
         <Card>
-          <p className="mb-2 text-sm font-semibold text-navy-900">The five rules that matter</p>
-          <ol className="list-decimal space-y-1.5 pl-4 text-sm text-slate-600">
+          <p className="mb-3 text-[15px] font-semibold text-ink">The five rules that matter</p>
+          <ol className="list-decimal space-y-2 pl-4 text-sm text-neutral-700">
             {FITNESS_RULES.map((rule) => (
               <li key={rule}>{rule}</li>
             ))}
@@ -129,9 +131,7 @@ export function FitnessTab() {
               : undefined
           }
           existingLog={logsByKey.get(`${activeSession.session.id}-${activeSession.date}`)}
-          onSave={(input) =>
-            logSession({ sessionId: activeSession.session.id, date: activeSession.date, ...input })
-          }
+          onSave={(input) => logSession({ sessionId: activeSession.session.id, date: activeSession.date, ...input })}
           onDelete={() => {
             const log = logsByKey.get(`${activeSession.session.id}-${activeSession.date}`)
             if (log) removeLog(log.id)

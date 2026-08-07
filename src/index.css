@@ -1,32 +1,37 @@
-@import "@fontsource-variable/fraunces";
-@import "@fontsource-variable/lora";
+@import "@fontsource-variable/archivo";
 @import "tailwindcss";
 
 @theme {
-  /* Lora carries body text — calm, readable serif. Fraunces carries display
-     headings via the .font-display utility. */
-  --font-sans: "Lora Variable", Georgia, "Times New Roman", serif;
-  --font-display: "Fraunces Variable", Georgia, serif;
+  /* Archivo carries both headings and body — near-mono, architectural. */
+  --font-heading: "Archivo Variable", system-ui, sans-serif;
+  --font-body: "Archivo Variable", system-ui, sans-serif;
 
-  --color-navy-950: #0b1f36;
-  --color-navy-900: #0f2a4a;
-  --color-navy-800: #16375c;
-  --color-navy-700: #204972;
-  --color-teal-600: #0f766e;
-  --color-teal-500: #14958a;
-  --color-teal-400: #2dbdb0;
+  --color-paper: #f3f2f2;
+  --color-ink: #201e1d;
+  --color-accent: #ec3013;
+  --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
 
-  /* Warm paper tones — softer than cool greys behind the serif type */
-  --color-paper-50: #faf8f4;
-  --color-paper-100: #f4f1ea;
-  --color-paper-200: #e8e3d8;
+  /* Tonal ramps, generated on one shared lightness scale so the same step of
+     any role matches the others in visual value. */
+  --color-neutral-100: #f8f4f4;
+  --color-neutral-200: #eae7e7;
+  --color-neutral-300: #d7d3d3;
+  --color-neutral-400: #bab6b6;
+  --color-neutral-500: #9b9797;
+  --color-neutral-600: #7d7979;
+  --color-neutral-700: #605d5d;
+  --color-neutral-800: #444141;
+  --color-neutral-900: #2d2b2b;
 
-  /* Section accents */
-  --color-clay-700: #9a5225;
-  --color-clay-500: #c2703f;
-  --color-clay-100: #f7e9df;
-  --color-plum-600: #7a4a8c;
-  --color-plum-100: #f0e6f4;
+  --color-accent-100: #fff2ef;
+  --color-accent-200: #ffe0d9;
+  --color-accent-300: #ffc4b8;
+  --color-accent-400: #ff9783;
+  --color-accent-500: #ff563c;
+  --color-accent-600: #dd2b0f;
+  --color-accent-700: #ae1800;
+  --color-accent-800: #7c1405;
+  --color-accent-900: #4d170e;
 }
 
 html {
@@ -35,15 +40,28 @@ html {
 
 body {
   margin: 0;
-  background: #faf8f4;
-  color: #1f2733;
-  font-family: var(--font-sans);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
 }
 
-.font-display {
-  font-family: var(--font-display);
-  font-variation-settings: "SOFT" 40, "WONK" 0;
-  letter-spacing: -0.01em;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 ::-webkit-scrollbar {
@@ -51,7 +69,7 @@ body {
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-neutral-400);
   border-radius: 8px;
 }
 ::-webkit-scrollbar-track {

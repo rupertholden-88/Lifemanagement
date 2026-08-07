@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Modal, Button } from '../shared/ui'
+import { Modal, Button, TextInput, TextArea, Banner } from '../shared/ui'
 import type { ExerciseLog, FitnessSession } from '../../types'
 
 interface SessionLogModalProps {
@@ -71,91 +71,70 @@ export function SessionLogModal({
   return (
     <Modal open={open} onClose={onClose} title={`${session.title} — ${dateLabel}`}>
       {qualityDetail && (
-        <div className="mb-4 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">
+        <Banner>
           <span className="font-semibold">{qualityDetail.title}: </span>
           {qualityDetail.detail}
-        </div>
+        </Banner>
       )}
 
       {hasExercises ? (
-        <div className="mb-4 space-y-2">
-          <p className="text-sm font-medium text-slate-700">Exercises completed</p>
+        <div className="mb-4">
+          <p className="mb-2 text-sm font-semibold text-ink">Exercises completed</p>
           {session.exercises!.map((ex) => (
             <label
               key={ex.name}
-              className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-2.5 hover:bg-slate-50"
+              className="flex cursor-pointer items-start gap-3 border-t-2 border-divider py-3 first:border-t-0"
             >
               <input
                 type="checkbox"
                 checked={checked.has(ex.name)}
                 onChange={() => toggle(ex.name)}
-                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                className="mt-0.5 h-5 w-5 shrink-0 rounded border-2 border-divider accent-accent focus:ring-accent"
               />
               <span>
-                <span className="block text-sm font-medium text-slate-800">
-                  {ex.name} <span className="font-normal text-slate-500">· {ex.reps}</span>
+                <span className="block text-sm font-medium text-ink">
+                  {ex.name} <span className="font-normal text-neutral-600">· {ex.reps}</span>
                 </span>
-                <span className="block text-xs text-slate-500">{ex.cue}</span>
+                <span className="block text-xs text-neutral-600">{ex.cue}</span>
               </span>
             </label>
           ))}
           {session.rounds && (
-            <p className="text-xs text-slate-500">
+            <p className="mt-2 text-xs text-neutral-600">
               {session.rounds} rounds · rest {session.restBetweenRounds} between rounds
             </p>
           )}
         </div>
       ) : (
-        <label className="mb-4 flex items-center gap-3 rounded-lg border border-slate-200 p-3">
+        <label className="mb-4 flex items-center gap-3 border-2 border-divider p-3">
           <input
             type="checkbox"
             checked={checked.has('done')}
             onChange={() => toggle('done')}
-            className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+            className="h-5 w-5 rounded border-2 border-divider accent-accent focus:ring-accent"
           />
-          <span className="text-sm font-medium text-slate-800">Mark this session as done</span>
+          <span className="text-sm font-medium text-ink">Mark this session as done</span>
         </label>
       )}
 
       <div className="mb-4 grid grid-cols-3 gap-3">
         <label className="text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Duration (min)</span>
-          <input
-            type="number"
-            value={durationMin}
-            onChange={(e) => setDurationMin(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-          />
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Duration (min)</span>
+          <TextInput type="number" value={durationMin} onChange={(e) => setDurationMin(e.target.value)} />
         </label>
         <label className="text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Avg HR</span>
-          <input
-            type="number"
-            value={avgHr}
-            onChange={(e) => setAvgHr(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-          />
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Avg HR</span>
+          <TextInput type="number" value={avgHr} onChange={(e) => setAvgHr(e.target.value)} />
         </label>
         <label className="text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Distance (km)</span>
-          <input
-            type="number"
-            step="0.1"
-            value={distanceKm}
-            onChange={(e) => setDistanceKm(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-          />
+          <span className="mb-1.5 block text-xs font-medium text-neutral-600">Distance (km)</span>
+          <TextInput type="number" step="0.1" value={distanceKm} onChange={(e) => setDistanceKm(e.target.value)} />
         </label>
       </div>
 
       <label className="mb-5 block text-sm">
-        <span className="mb-1 block text-xs font-medium text-slate-600">Notes</span>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={2}
-          className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-        />
+        <span className="mb-1.5 block text-xs font-medium text-neutral-600">Notes</span>
+        <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
       </label>
 
       <div className="flex items-center justify-between gap-3">

@@ -8,9 +8,10 @@ import { useMealOptions } from '../../hooks/useMealOptions'
 import { WEEKLY_MAX_POINTS, scheduleForWfhDay } from '../../data/fitnessPlan'
 import { isLowStock } from '../../lib/inventory'
 import { checkMealAvailability } from '../../lib/meals'
-import { isoToday } from '../../lib/date'
+import { isoToday, getWeekDates } from '../../lib/date'
 import { weeklyScoreFor } from '../../lib/fitnessScoring'
-import { Card, Badge, ProgressBar, Button } from '../shared/ui'
+import { Banner, Button, Tag } from '../shared/ui'
+import { CheckIcon } from '../shared/icons'
 import type { Section } from '../shared/nav'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const
@@ -24,13 +25,12 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
   const { cookMeal } = useCookMeal()
   const [banner, setBanner] = useState<string | null>(null)
 
-  const todayLabel = new Date().toLocaleDateString(undefined, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  })
+  const dateLabel = new Date()
+    .toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })
+    .toUpperCase()
   const schedule = useMemo(() => scheduleForWfhDay(wfhDay), [wfhDay])
   const today = isoToday()
+  const week = useMemo(() => getWeekDates(new Date(), 0), [])
   const todayDayName = DAY_NAMES[new Date().getDay()]
   const todaySession = schedule.find((s) => s.day === todayDayName)
   const todayLog = exerciseLogs.find((l) => l.sessionId === todaySession?.id && l.date === today)
@@ -42,6 +42,12 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
 
   const score = useMemo(() => weeklyScoreFor(exerciseLogs, schedule, 0), [exerciseLogs, schedule])
   const lowStockItems = inventory.filter(isLowStock)
+
+  const summary = [
+    todaySession ? (todaySession.type === 'rest' ? 'a rest day' : todaySession.title.toLowerCase()) : 'nothing scheduled',
+    todayDinner ? `${todayDinner.name.toLowerCase()} for dinner` : 'dinner not planned yet',
+    lowStockItems.length > 0 ? `${lowStockItems.length} thing${lowStockItems.length === 1 ? '' : 's'} to restock` : 'the stock topped up',
+  ].join(', ')
 
   const handleCookDinner = () => {
     if (!todayDinner) return
@@ -56,140 +62,131 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
 
   return (
     <div>
-      <div className="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-navy-950 via-navy-900 to-teal-600 p-5 text-white shadow-sm sm:p-6">
-        <p className="text-xs font-medium uppercase tracking-widest text-teal-200">{todayLabel}</p>
-        <h1 className="font-display mt-1 text-2xl font-semibold sm:text-3xl">Welcome back</h1>
-        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-          <span className="text-slate-200">
-            <span className="font-display text-lg font-semibold text-white">{score.earned}</span>
-            <span className="text-slate-300"> / {WEEKLY_MAX_POINTS} pts this week</span>
-          </span>
-          <span className="text-slate-200">
-            <span className="font-display text-lg font-semibold text-white">{lowStockItems.length}</span>
-            <span className="text-slate-300"> to restock</span>
-          </span>
+      <p className="mb-2.5 text-[11px] font-semibold tracking-[0.16em] text-accent-700">{dateLabel}</p>
+      <h1 className="mb-2.5 text-[36px] leading-[1.05] font-semibold tracking-[-0.03em] text-ink">Welcome back</h1>
+      <p className="mb-6 text-[15px] leading-relaxed text-neutral-700">
+        {summary.charAt(0).toUpperCase() + summary.slice(1)}.
+      </p>
+
+      {banner && <Banner>{banner}</Banner>}
+
+      <div className="mb-0 grid grid-cols-2 border-t-2 border-ink border-b-2 border-divider">
+        <div className="py-4 pr-4">
+          <p className="mb-2 text-[10.5px] font-semibold tracking-[0.14em] text-neutral-600 uppercase">Points</p>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[34px] leading-none font-semibold tracking-[-0.03em] text-ink">{score.earned}</span>
+            <span className="text-sm text-neutral-600">/ {WEEKLY_MAX_POINTS}</span>
+          </div>
+        </div>
+        <div className="border-l-2 border-divider py-4 pl-4">
+          <p className="mb-2 text-[10.5px] font-semibold tracking-[0.14em] text-neutral-600 uppercase">To restock</p>
+          <div className="flex items-baseline gap-1.5">
+            <span
+              className={`text-[34px] leading-none font-semibold tracking-[-0.03em] ${lowStockItems.length ? 'text-accent' : 'text-ink'}`}
+            >
+              {lowStockItems.length}
+            </span>
+            <span className="text-sm text-neutral-600">{lowStockItems.length === 1 ? 'item' : 'items'}</span>
+          </div>
         </div>
       </div>
 
-      {banner && <div className="mb-4 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">{banner}</div>}
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-clay-100 text-base">
-                🏃
-              </span>
-              <p className="text-sm font-semibold text-navy-900">Today's session</p>
+      <div className="mb-6 grid grid-cols-7 border-b-2 border-divider">
+        {week.map(({ day, date }) => {
+          const session = schedule.find((s) => s.day === day)
+          const logged = exerciseLogs.some((l) => l.sessionId === session?.id && l.date === date && l.pointsEarned > 0)
+          const isRest = session?.points === 0
+          return (
+            <div
+              key={day}
+              className={`py-2.5 text-center text-[11px] font-semibold ${
+                logged ? 'bg-accent text-white' : isRest ? 'bg-neutral-200 text-neutral-600' : 'text-neutral-600'
+              } ${date === today ? 'underline decoration-2 underline-offset-4' : ''}`}
+            >
+              {day.slice(0, 1)}
             </div>
-            {todaySession && todaySession.duration !== '—' && (
-              <Badge className="bg-clay-100 text-clay-700 ring-clay-500/20">{todaySession.duration}</Badge>
-            )}
-          </div>
-          {todaySession ? (
-            <>
-              <p className="font-medium text-navy-900">{todaySession.title}</p>
-              <p className="mt-1 text-sm text-slate-500">{todaySession.detail}</p>
-              {todaySession.type !== 'rest' && (
-                <div className="mt-3 flex items-center gap-2">
-                  {todayLog ? (
-                    <>
-                      <Badge className="bg-teal-600 text-white ring-0">✓ Logged · {todayLog.pointsEarned} pts</Badge>
-                      <Button variant="ghost" onClick={() => onNavigate('fitness')}>
-                        View
-                      </Button>
-                    </>
-                  ) : (
-                    <Button onClick={() => onNavigate('fitness')}>Log this session</Button>
-                  )}
-                </div>
-              )}
-            </>
-          ) : (
-            <p className="text-sm text-slate-500">Nothing scheduled today.</p>
-          )}
-        </Card>
-
-        <Card>
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-600/10 text-base">
-                🍽️
-              </span>
-              <p className="text-sm font-semibold text-navy-900">Tonight's dinner</p>
-            </div>
-            {dinnerAvailability && (
-              <Badge className={dinnerAvailability.missing.length === 0 ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' : 'bg-amber-50 text-amber-700 ring-amber-600/20'}>
-                {dinnerAvailability.matched.length}/{todayDinner!.ingredients.length} in stock
-              </Badge>
-            )}
-          </div>
-          {todayDinner ? (
-            <>
-              <p className="font-medium text-navy-900">{todayDinner.name}</p>
-              {todayDinner.notes && <p className="mt-1 text-sm text-slate-500">{todayDinner.notes}</p>}
-              <div className="mt-3 flex items-center gap-2">
-                <Button onClick={handleCookDinner} disabled={dinnerCooked} variant={dinnerCooked ? 'secondary' : 'primary'}>
-                  {dinnerCooked ? '✓ Cooked today' : 'Cook this'}
-                </Button>
-                <Button variant="ghost" onClick={() => onNavigate('meals')}>
-                  Change plan
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div>
-              <p className="text-sm text-slate-500">No dinner planned yet.</p>
-              <Button className="mt-2" variant="secondary" onClick={() => onNavigate('meals')}>
-                Plan tonight
-              </Button>
-            </div>
-          )}
-        </Card>
+          )
+        })}
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <Card>
-          <div className="mb-3 flex items-center gap-2.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-plum-100 text-base">
-              📈
-            </span>
-            <p className="text-sm font-semibold text-navy-900">This week's fitness score</p>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-display text-3xl font-semibold text-plum-600">{score.earned}</span>
-            <span className="text-sm text-slate-400">/ {WEEKLY_MAX_POINTS} pts</span>
-          </div>
-          <ProgressBar value={score.percent} className="mt-2" />
-          <Button variant="ghost" className="mt-2 -ml-3.5" onClick={() => onNavigate('fitness')}>
-            View fitness →
-          </Button>
-        </Card>
+      <div className="mb-6 border-t-2 border-ink pt-4">
+        <div className="mb-2.5 flex items-center justify-between gap-2.5">
+          <p className="text-[10.5px] font-semibold tracking-[0.14em] text-neutral-600 uppercase">Today&rsquo;s session</p>
+          {todaySession && todaySession.duration !== '—' && <Tag>{todaySession.duration}</Tag>}
+        </div>
+        {todaySession ? (
+          <>
+            <h3 className="mb-2 text-[26px] leading-tight font-semibold tracking-[-0.025em] text-ink">{todaySession.title}</h3>
+            <p className="mb-3.5 text-[14.5px] leading-relaxed text-neutral-700">{todaySession.detail}</p>
+            {todaySession.type !== 'rest' &&
+              (todayLog ? (
+                <div className="flex items-center gap-2">
+                  <Tag tone="ink">
+                    <CheckIcon width={12} height={12} /> Logged · {todayLog.pointsEarned} pts
+                  </Tag>
+                  <Button variant="ghost" onClick={() => onNavigate('fitness')}>
+                    View
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={() => onNavigate('fitness')}>Log this session</Button>
+              ))}
+          </>
+        ) : (
+          <p className="text-[14.5px] text-neutral-600">Nothing scheduled today.</p>
+        )}
+      </div>
 
-        <Card>
-          <div className="mb-3 flex items-center gap-2.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-base">
-              📦
-            </span>
-            <p className="text-sm font-semibold text-navy-900">Household inventory</p>
-          </div>
-          {lowStockItems.length === 0 ? (
-            <p className="text-sm text-slate-500">Everything's well stocked. 👍</p>
-          ) : (
-            <>
-              <p className="text-sm text-slate-600">
-                <span className="font-medium text-amber-700">{lowStockItems.length}</span> item{lowStockItems.length === 1 ? '' : 's'} running low or out:
-              </p>
-              <p className="mt-1 truncate text-sm text-slate-500">
-                {lowStockItems.slice(0, 5).map((i) => i.name).join(', ')}
-                {lowStockItems.length > 5 ? '…' : ''}
-              </p>
-            </>
+      <div className="mb-6 border-t-2 border-ink pt-4">
+        <div className="mb-2.5 flex items-center justify-between gap-2.5">
+          <p className="text-[10.5px] font-semibold tracking-[0.14em] text-neutral-600 uppercase">Tonight&rsquo;s dinner</p>
+          {dinnerAvailability && (
+            <Tag tone={dinnerAvailability.missing.length === 0 ? 'neutral' : 'accent'}>
+              {dinnerAvailability.matched.length}/{todayDinner!.ingredients.length} in stock
+            </Tag>
           )}
-          <Button variant="ghost" className="mt-2 -ml-3.5" onClick={() => onNavigate('inventory')}>
-            View inventory →
-          </Button>
-        </Card>
+        </div>
+        {todayDinner ? (
+          <>
+            <h3 className="mb-2 text-[26px] leading-tight font-semibold tracking-[-0.025em] text-ink">{todayDinner.name}</h3>
+            {todayDinner.notes && <p className="mb-3.5 text-[14.5px] leading-relaxed text-neutral-700">{todayDinner.notes}</p>}
+            <div className="flex gap-2">
+              <Button variant={dinnerCooked ? 'done' : 'primary'} onClick={handleCookDinner} disabled={dinnerCooked}>
+                {dinnerCooked ? 'Cooked ✓' : 'Cook this'}
+              </Button>
+              <Button variant="secondary" onClick={() => onNavigate('meals')}>
+                Change
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div>
+            <p className="mb-3 text-[14.5px] text-neutral-600">No dinner planned yet.</p>
+            <Button variant="secondary" onClick={() => onNavigate('meals')}>
+              Plan tonight
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="border-t-2 border-ink pt-4">
+        <p className="mb-3 text-[10.5px] font-semibold tracking-[0.14em] text-neutral-600 uppercase">Running low</p>
+        {lowStockItems.length === 0 ? (
+          <p className="mb-3.5 flex items-center gap-2 text-[14.5px] text-neutral-600">
+            <CheckIcon width={16} height={16} /> Everything&rsquo;s well stocked.
+          </p>
+        ) : (
+          <div className="mb-3.5 flex flex-wrap gap-2">
+            {lowStockItems.map((item) => (
+              <Tag key={item.id} tone="accent">
+                {item.name}
+              </Tag>
+            ))}
+          </div>
+        )}
+        <Button variant="secondary" onClick={() => onNavigate('inventory')}>
+          View inventory
+        </Button>
       </div>
     </div>
   )

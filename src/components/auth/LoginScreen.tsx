@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { Button, Segmented, TextInput } from '../shared/ui'
 
 export function LoginScreen() {
   const { signIn, signUp, signInWithGoogle } = useAuth()
@@ -39,19 +40,19 @@ export function LoginScreen() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-navy-950 px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-paper px-5 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="font-display text-3xl font-semibold text-white">Life Management</h1>
-          <p className="mt-1 text-sm text-slate-400">Fitness, meals & household inventory</p>
+          <h1 className="text-[32px] font-semibold tracking-[-0.03em] text-ink">Life Management</h1>
+          <p className="mt-1.5 text-sm text-neutral-600">Fitness, meals &amp; household inventory</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="rounded-2xl bg-white p-6 shadow-xl sm:p-8">
+        <form onSubmit={handleSubmit} className="border-t-2 border-ink pt-6">
           <button
             type="button"
             onClick={handleGoogle}
             disabled={busy}
-            className="mb-4 flex w-full items-center justify-center gap-2.5 rounded-lg border border-slate-300 bg-white py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+            className="mb-4 flex min-h-11 w-full items-center justify-center gap-2.5 rounded-full border-2 border-divider bg-transparent py-2.5 text-sm font-semibold text-ink transition hover:bg-neutral-100 disabled:opacity-60"
           >
             <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
@@ -62,76 +63,55 @@ export function LoginScreen() {
             Continue with Google
           </button>
 
-          <div className="mb-4 flex items-center gap-3 text-xs text-slate-400">
-            <span className="h-px flex-1 bg-slate-200" />
+          <div className="mb-4 flex items-center gap-3 text-xs text-neutral-500">
+            <span className="h-px flex-1 bg-neutral-300" />
             or with email
-            <span className="h-px flex-1 bg-slate-200" />
+            <span className="h-px flex-1 bg-neutral-300" />
           </div>
 
-          <div className="mb-5 flex rounded-lg bg-slate-100 p-1 text-sm font-medium">
-            <button
-              type="button"
-              onClick={() => setMode('signin')}
-              className={`flex-1 rounded-md py-1.5 transition ${
-                mode === 'signin' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500'
-              }`}
-            >
-              Sign in
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('signup')}
-              className={`flex-1 rounded-md py-1.5 transition ${
-                mode === 'signup' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500'
-              }`}
-            >
-              Create account
-            </button>
-          </div>
+          <Segmented
+            options={[
+              { id: 'signin' as const, label: 'Sign in' },
+              { id: 'signup' as const, label: 'Create account' },
+            ]}
+            value={mode}
+            onChange={setMode}
+            className="mb-5"
+          />
 
           <label className="mb-3 block text-sm">
-            <span className="mb-1 block font-medium text-slate-700">Email</span>
-            <input
+            <span className="mb-1.5 block font-medium text-neutral-700">Email</span>
+            <TextInput
               type="email"
               required
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               placeholder="you@example.com"
             />
           </label>
 
           <label className="mb-4 block text-sm">
-            <span className="mb-1 block font-medium text-slate-700">Password</span>
-            <input
+            <span className="mb-1.5 block font-medium text-neutral-700">Password</span>
+            <TextInput
               type="password"
               required
               minLength={6}
               autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               placeholder="At least 6 characters"
             />
           </label>
 
-          {error && (
-            <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-          )}
+          {error && <p className="mb-4 rounded-full bg-accent-100 px-4 py-2.5 text-sm text-accent-800">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={busy}
-            className="w-full rounded-lg bg-teal-600 py-2.5 font-medium text-white transition hover:bg-teal-500 disabled:opacity-60"
-          >
+          <Button type="submit" disabled={busy} className="w-full">
             {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
-          </button>
+          </Button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-slate-500">
-          Your data syncs across every device you sign in on.
-        </p>
+        <p className="mt-6 text-center text-xs text-neutral-500">Your data syncs across every device you sign in on.</p>
       </div>
     </div>
   )
