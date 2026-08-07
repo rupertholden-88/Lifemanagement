@@ -7,8 +7,10 @@ import {
 } from 'react'
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth'
@@ -24,6 +26,7 @@ interface AuthContextValue {
   localMode: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string) => Promise<void>
+  signInWithGoogle: () => Promise<void>
   signOutUser: () => Promise<void>
 }
 
@@ -52,6 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await createUserWithEmailAndPassword(auth, email, password)
   }
 
+  const signInWithGoogle = async () => {
+    if (!auth) throw new Error('Firebase is not configured')
+    await signInWithPopup(auth, new GoogleAuthProvider())
+  }
+
   const signOutUser = async () => {
     if (!auth) return
     await firebaseSignOut(auth)
@@ -64,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localMode: !firebaseEnabled,
     signIn,
     signUp,
+    signInWithGoogle,
     signOutUser,
   }
 

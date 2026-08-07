@@ -28,7 +28,9 @@ With no configuration the app runs in **local-only mode**: no login, data saved 
 To get sign-in and real-time sync across phone/tablet/laptop:
 
 1. Go to [console.firebase.google.com](https://console.firebase.google.com) → **Add project** (any name, Analytics optional).
-2. **Build → Authentication → Get started → Email/Password → Enable**.
+2. **Build → Authentication → Get started**, then under **Sign-in method** enable the providers you want:
+   - **Google** — flip the toggle, pick a support email, save. That's the whole setup; the "Continue with Google" button on the sign-in screen then works with your normal Google account (no password to remember).
+   - **Email/Password** — enable if you also want classic email sign-in.
 3. **Build → Firestore Database → Create database → Production mode** (pick a region close to you, e.g. `europe-west2`).
 4. In Firestore → **Rules**, paste the contents of [`firestore.rules`](./firestore.rules) and publish. (Users can only read/write their own data.)
 5. **Project settings → General → Your apps → Web app** (`</>` icon) → register an app → copy the config values.
@@ -41,7 +43,7 @@ Restart the dev server — the app now shows a sign-in screen, and the same acco
 1. Push this repo to GitHub and import it in [vercel.com](https://vercel.com) → **New Project**. Vercel auto-detects Vite; no build settings needed.
 2. In **Project → Settings → Environment Variables**, add the six `VITE_FIREBASE_*` values (same as `.env.local`).
 3. Deploy. The recipe importer (`api/recipe-summary.py` + root `requirements.txt`) is picked up automatically as a Python serverless function. (Local dev uses a lighter TypeScript fallback parser built into the Vite dev server, so `npm run dev` needs no Python.)
-4. In Firebase → **Authentication → Settings → Authorized domains**, add your `*.vercel.app` domain (and any custom domain).
+4. In Firebase → **Authentication → Settings → Authorized domains**, add your `*.vercel.app` domain (and any custom domain). `localhost` is pre-authorized, so Google sign-in also works in local dev. Without this step, Google sign-in on the deployed site fails with an "unauthorized domain" error.
 
 Without the Firebase env vars, the deployed app still works — it just runs in single-device, local-storage mode.
 
