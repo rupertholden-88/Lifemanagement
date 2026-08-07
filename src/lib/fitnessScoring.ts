@@ -1,15 +1,15 @@
-import { FITNESS_SESSIONS, WEEKLY_MAX_POINTS } from '../data/fitnessPlan'
+import { WEEKLY_MAX_POINTS } from '../data/fitnessPlan'
 import { getWeekDates, toIso } from './date'
-import type { DayOfWeek, ExerciseLog } from '../types'
+import type { DayOfWeek, ExerciseLog, FitnessSession } from '../types'
 
-export function weeklyScoreFor(logs: ExerciseLog[], weekOffset: number) {
+export function weeklyScoreFor(logs: ExerciseLog[], schedule: FitnessSession[], weekOffset: number) {
   const week = getWeekDates(new Date(), weekOffset)
   const logsByKey = new Map(logs.map((l) => [`${l.sessionId}-${l.date}`, l]))
 
   let earned = 0
   let sessionsLogged = 0
   for (const { day, date } of week) {
-    const session = FITNESS_SESSIONS.find((s) => s.day === day)
+    const session = schedule.find((s) => s.day === day)
     if (!session) continue
     const log = logsByKey.get(`${session.id}-${date}`)
     if (log) {
@@ -22,7 +22,7 @@ export function weeklyScoreFor(logs: ExerciseLog[], weekOffset: number) {
 }
 
 /** Consecutive days (ending today) where the scheduled session was logged, or was a rest day. */
-export function computeStreak(logs: ExerciseLog[]): number {
+export function computeStreak(logs: ExerciseLog[], schedule: FitnessSession[]): number {
   const logsByKey = new Map(logs.map((l) => [`${l.sessionId}-${l.date}`, l]))
   let streak = 0
   const cursor = new Date()
@@ -30,7 +30,7 @@ export function computeStreak(logs: ExerciseLog[]): number {
   for (let i = 0; i < 60; i++) {
     const iso = toIso(cursor)
     const dayName = cursor.toLocaleDateString('en-US', { weekday: 'long' }) as DayOfWeek
-    const session = FITNESS_SESSIONS.find((s) => s.day === dayName)
+    const session = schedule.find((s) => s.day === dayName)
     if (!session) break
 
     if (session.type === 'rest') {

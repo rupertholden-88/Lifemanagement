@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useFitness } from '../../context/FitnessContext'
-import { FITNESS_SESSIONS, FITNESS_RULES, HEART_RATE_ZONES, QUALITY_RUN_ROTATION, WEEKLY_MAX_POINTS } from '../../data/fitnessPlan'
+import { useSettings } from '../../context/SettingsContext'
+import { FITNESS_RULES, HEART_RATE_ZONES, QUALITY_RUN_ROTATION, WEEKLY_MAX_POINTS, scheduleForWfhDay } from '../../data/fitnessPlan'
 import { getWeekDates, formatDayLabel, weekRangeLabel, weeksSince, isoToday } from '../../lib/date'
 import { weeklyScoreFor, computeStreak } from '../../lib/fitnessScoring'
 import { SectionTitle, Card, Button } from '../shared/ui'
@@ -8,13 +9,15 @@ import { SessionCard } from './SessionCard'
 import { SessionLogModal } from './SessionLogModal'
 import { WeeklyScoreCard } from './WeeklyScoreCard'
 import { ProgressMetrics } from './ProgressMetrics'
-import type { FitnessSession } from '../../types'
+import { DAYS_OF_WEEK, type DayOfWeek, type FitnessSession } from '../../types'
 
 export function FitnessTab() {
   const { exerciseLogs, logSession, removeLog, planStartDate } = useFitness()
+  const { wfhDay, setWfhDay } = useSettings()
   const [weekOffset, setWeekOffset] = useState(0)
   const [activeSession, setActiveSession] = useState<{ session: FitnessSession; date: string; dateLabel: string } | null>(null)
 
+  const schedule = useMemo(() => scheduleForWfhDay(wfhDay), [wfhDay])
   const week = useMemo(() => getWeekDates(new Date(), weekOffset), [weekOffset])
   const qualityWeek = useMemo(() => {
     const monday = new Date(week[0].date + 'T00:00:00')
@@ -22,21 +25,41 @@ export function FitnessTab() {
     return QUALITY_RUN_ROTATION[idx]
   }, [week, planStartDate])
 
-  const score = useMemo(() => weeklyScoreFor(exerciseLogs, weekOffset), [exerciseLogs, weekOffset])
-  const streak = useMemo(() => computeStreak(exerciseLogs), [exerciseLogs])
+  const score = useMemo(() => weeklyScoreFor(exerciseLogs, schedule, weekOffset), [exerciseLogs, schedule, weekOffset])
+  const streak = useMemo(() => computeStreak(exerciseLogs, schedule), [exerciseLogs, schedule])
   const today = isoToday()
 
   const logsByKey = new Map(exerciseLogs.map((l) => [`${l.sessionId}-${l.date}`, l]))
 
   return (
     <div>
-      <SectionTitle title="Fitness" subtitle="Your weekly training plan — log sessions and track progress" />
+      <SectionTitle
+        title="Fitness"
+        subtitle="Your weekly training plan — log sessions and track progress"
+        action={
+          <label className="flex shrink-0 items-center gap-2 text-sm text-slate-600">
+            WFH day
+            <select
+              value={wfhDay}
+              onChange={(e) => setWfhDay(e.target.value as DayOfWeek)}
+              className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm font-medium text-navy-900"
+              title="Strength B (the longer session) follows your work-from-home day"
+            >
+              {DAYS_OF_WEEK.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </label>
+        }
+      />
 
       <WeeklyScoreCard
         earned={score.earned}
         max={WEEKLY_MAX_POINTS}
         sessionsLogged={score.sessionsLogged}
-        totalSessions={FITNESS_SESSIONS.filter((s) => s.type !== 'rest').length}
+        totalSessions={schedule.filter((s) => s.type !== 'rest').length}
         streak={streak}
       />
 
@@ -48,7 +71,7 @@ export function FitnessTab() {
 
       <div className="space-y-2.5">
         {week.map(({ day, date }) => {
-          const session = FITNESS_SESSIONS.find((s) => s.day === day)
+          const session = schedule.find((s) => s.day === day)
           if (!session) return null
           const log = logsByKey.get(`${session.id}-${date}`)
           return (

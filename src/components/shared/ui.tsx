@@ -20,7 +20,7 @@ export function SectionTitle({
   return (
     <div className="mb-5 flex items-start justify-between gap-4">
       <div>
-        <h1 className="text-xl font-semibold text-navy-900 sm:text-2xl">{title}</h1>
+        <h1 className="font-display text-2xl font-semibold text-navy-900 sm:text-3xl">{title}</h1>
         {subtitle && <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>}
       </div>
       {action}
@@ -79,7 +79,7 @@ export function Modal({
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center sm:p-4">
       <div className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-xl sm:max-w-lg sm:rounded-2xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-navy-900">{title}</h2>
+          <h2 className="font-display text-lg font-semibold text-navy-900">{title}</h2>
           <button onClick={onClose} className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
             ✕
           </button>

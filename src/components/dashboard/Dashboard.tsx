@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react'
 import { useFitness } from '../../context/FitnessContext'
 import { useMeals } from '../../context/MealsContext'
 import { useInventory } from '../../context/InventoryContext'
+import { useSettings } from '../../context/SettingsContext'
 import { useCookMeal } from '../../hooks/useCookMeal'
-import { FITNESS_SESSIONS, WEEKLY_MAX_POINTS } from '../../data/fitnessPlan'
+import { WEEKLY_MAX_POINTS, scheduleForWfhDay } from '../../data/fitnessPlan'
 import { isLowStock } from '../../lib/inventory'
 import { checkMealAvailability } from '../../lib/meals'
 import { isoToday } from '../../lib/date'
@@ -17,12 +18,14 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
   const { exerciseLogs } = useFitness()
   const { meals, weeklyPlan, mealLogs } = useMeals()
   const { items: inventory } = useInventory()
+  const { wfhDay } = useSettings()
   const { cookMeal } = useCookMeal()
   const [banner, setBanner] = useState<string | null>(null)
 
+  const schedule = useMemo(() => scheduleForWfhDay(wfhDay), [wfhDay])
   const today = isoToday()
   const todayDayName = DAY_NAMES[new Date().getDay()]
-  const todaySession = FITNESS_SESSIONS.find((s) => s.day === todayDayName)
+  const todaySession = schedule.find((s) => s.day === todayDayName)
   const todayLog = exerciseLogs.find((l) => l.sessionId === todaySession?.id && l.date === today)
 
   const todayDinnerEntry = weeklyPlan.find((e) => e.day === todayDayName)
@@ -30,7 +33,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
   const dinnerAvailability = todayDinner ? checkMealAvailability(todayDinner, inventory) : null
   const dinnerCooked = todayDinner ? mealLogs.some((l) => l.date === today && l.mealId === todayDinner.id) : false
 
-  const score = useMemo(() => weeklyScoreFor(exerciseLogs, 0), [exerciseLogs])
+  const score = useMemo(() => weeklyScoreFor(exerciseLogs, schedule, 0), [exerciseLogs, schedule])
   const lowStockItems = inventory.filter(isLowStock)
 
   const handleCookDinner = () => {

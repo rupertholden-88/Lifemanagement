@@ -15,7 +15,7 @@ export function WeeklyScoreCard({ earned, max, sessionsLogged, totalSessions, st
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-teal-300">This week's score</p>
-          <p className="mt-1 text-3xl font-semibold">
+          <p className="font-display mt-1 text-3xl font-semibold">
             {earned} <span className="text-lg font-normal text-slate-300">/ {max} pts</span>
           </p>
         </div>

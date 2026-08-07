@@ -1,7 +1,12 @@
+@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/lora";
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  /* Lora carries body text — calm, readable serif. Fraunces carries display
+     headings via the .font-display utility. */
+  --font-sans: "Lora Variable", Georgia, "Times New Roman", serif;
+  --font-display: "Fraunces Variable", Georgia, serif;
 
   --color-navy-950: #0b1f36;
   --color-navy-900: #0f2a4a;
@@ -18,8 +23,15 @@ html {
 
 body {
   margin: 0;
-  background: #f4f6f8;
-  color: #17212e;
+  background: #f6f5f2;
+  color: #1f2733;
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 40, "WONK" 0;
+  letter-spacing: -0.01em;
 }
 
 ::-webkit-scrollbar {

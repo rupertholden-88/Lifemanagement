@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { SettingsProvider } from './context/SettingsContext'
 import { FitnessProvider } from './context/FitnessContext'
 import { MealsProvider } from './context/MealsContext'
 import { RecipesProvider } from './context/RecipesContext'
@@ -24,15 +25,17 @@ function AuthGate() {
   }
 
   return (
-    <FitnessProvider>
-      <MealsProvider>
-        <RecipesProvider>
-          <InventoryProvider>
-            <MainApp />
-          </InventoryProvider>
-        </RecipesProvider>
-      </MealsProvider>
-    </FitnessProvider>
+    <SettingsProvider>
+      <FitnessProvider>
+        <MealsProvider>
+          <RecipesProvider>
+            <InventoryProvider>
+              <MainApp />
+            </InventoryProvider>
+          </RecipesProvider>
+        </MealsProvider>
+      </FitnessProvider>
+    </SettingsProvider>
   )
 }
 

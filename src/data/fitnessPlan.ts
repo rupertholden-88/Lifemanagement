@@ -1,4 +1,4 @@
-import type { FitnessSession, MetricTarget, QualityRunWeek } from '../types'
+import type { DayOfWeek, FitnessSession, MetricTarget, QualityRunWeek } from '../types'
 
 export const FITNESS_SESSIONS: FitnessSession[] = [
   {
@@ -132,3 +132,17 @@ export const FITNESS_RULES = [
 ]
 
 export const WEEKLY_MAX_POINTS = FITNESS_SESSIONS.reduce((sum, s) => sum + s.points, 0)
+
+/**
+ * The plan with Strength B moved to the user's actual WFH day. The session that
+ * normally occupies that day swaps back to Wednesday, so the week always keeps
+ * the same seven sessions.
+ */
+export function scheduleForWfhDay(wfhDay: DayOfWeek): FitnessSession[] {
+  if (wfhDay === 'Wednesday') return FITNESS_SESSIONS
+  return FITNESS_SESSIONS.map((session) => {
+    if (session.id === 'wed-strength-b') return { ...session, day: wfhDay }
+    if (session.day === wfhDay) return { ...session, day: 'Wednesday' as DayOfWeek }
+    return session
+  })
+}

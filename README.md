@@ -9,9 +9,9 @@ Works on phone, tablet and laptop. Deploys as a static site + one serverless fun
 | Section | What it does |
 |---|---|
 | **Home** | Today at a glance — today's training session, tonight's dinner (with pantry check), weekly fitness score, low-stock alerts |
-| **Fitness** | The full weekly plan (easy runs, Strength A/B with exercise checklists, rotating Saturday quality run). Log sessions, earn points, keep streaks, track weight / resting HR / body fat / 5K time against targets |
+| **Fitness** | The full weekly plan (easy runs, Strength A/B with exercise checklists, rotating Saturday quality run). Log sessions, earn points, keep streaks, track weight / resting HR / body fat / 5K time against targets. The **WFH day is configurable** — Strength B (the longer session) follows whichever day you pick |
 | **Meals** | Weekly dinner planner, meal suggestions ranked by what's already in stock, meal library with likes and custom meals. "Cook this" logs the meal **and automatically decrements the matching pantry items** |
-| **Recipes** | Paste a recipe link — ingredients, timings and method are extracted automatically (schema.org data via a serverless function). Save, like, and push recipes into the meal library |
+| **Recipes** | Paste a recipe link — ingredients, timings and method are extracted automatically by a Python serverless function using [recipe-scrapers](https://github.com/hhursev/recipe-scrapers), which has purpose-built parsers for hundreds of recipe sites. Save, like, and push recipes into the meal library |
 | **Stock** | Food tracked by exact count (e.g. 4 tins of chopped tomatoes), household essentials by low/medium/high (toilet roll, bin bags…). Add/remove items, Amazon reorder links, low-stock alerts, and an auto-built shopping list |
 
 ## Running locally
@@ -40,7 +40,7 @@ Restart the dev server — the app now shows a sign-in screen, and the same acco
 
 1. Push this repo to GitHub and import it in [vercel.com](https://vercel.com) → **New Project**. Vercel auto-detects Vite; no build settings needed.
 2. In **Project → Settings → Environment Variables**, add the six `VITE_FIREBASE_*` values (same as `.env.local`).
-3. Deploy. The recipe importer (`api/recipe-summary.ts`) is picked up automatically as an Edge Function.
+3. Deploy. The recipe importer (`api/recipe-summary.py` + root `requirements.txt`) is picked up automatically as a Python serverless function. (Local dev uses a lighter TypeScript fallback parser built into the Vite dev server, so `npm run dev` needs no Python.)
 4. In Firebase → **Authentication → Settings → Authorized domains**, add your `*.vercel.app` domain (and any custom domain).
 
 Without the Firebase env vars, the deployed app still works — it just runs in single-device, local-storage mode.
