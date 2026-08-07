@@ -169,7 +169,7 @@ export function Modal({
 }) {
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center sm:p-4">
+    <div role="dialog" aria-modal="true" data-swipe-block className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center sm:p-4">
       <div className="max-h-[88vh] w-full max-w-lg overflow-y-auto border-t-4 border-ink bg-paper px-5 pt-5 pb-8 sm:border-2 sm:pb-6">
         <div className="mb-5 flex items-center justify-between gap-3">
           <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">{title}</h2>

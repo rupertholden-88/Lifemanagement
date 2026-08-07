@@ -103,7 +103,7 @@ export function ProgressMetrics() {
       {sorted.length > 0 && (
         <div className="mt-6">
           <p className="mb-2 text-[10.5px] font-semibold tracking-[0.14em] text-neutral-600 uppercase">History</p>
-          <div className="overflow-x-auto border-t-2 border-ink">
+          <div data-swipe-block className="overflow-x-auto border-t-2 border-ink">
             <table className="w-full text-sm">
               <thead className="text-left text-xs text-neutral-500">
                 <tr className="border-b-2 border-divider">
