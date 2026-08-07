@@ -99,7 +99,7 @@ export function AppShell({ section, onSectionChange }: AppShellProps) {
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-paper text-ink">
-      <header className="sticky top-0 z-20 flex w-full max-w-[560px] items-center justify-between border-b-2 border-divider bg-paper/95 px-5 py-3 backdrop-blur">
+      <header className="sticky top-0 z-20 flex w-full max-w-[560px] items-center justify-between border-b-2 border-divider bg-cream/95 px-5 py-3 backdrop-blur">
         <span className="font-heading text-[15px] font-semibold tracking-[-0.01em]">Life Management</span>
         {!localMode && (
           <button onClick={() => signOutUser()} className="font-heading text-[13px] font-semibold text-accent-700">
