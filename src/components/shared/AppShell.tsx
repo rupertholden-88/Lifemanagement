@@ -99,14 +99,14 @@ export function AppShell({ section, onSectionChange }: AppShellProps) {
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-paper text-ink">
-      <header className="sticky top-0 z-20 flex w-full max-w-[560px] items-center justify-between border-b-2 border-divider bg-cream/95 px-5 py-3 backdrop-blur">
+      <header className="sticky top-0 z-20 flex w-full max-w-[560px] items-center justify-between border-b-2 border-divider bg-topbar/95 px-5 py-3 backdrop-blur">
         <span className="font-heading text-[15px] font-semibold tracking-[-0.01em]">Life Management</span>
         {!localMode && (
           <button onClick={() => signOutUser()} className="font-heading text-[13px] font-semibold text-accent-700">
             Sign out
           </button>
         )}
-        {localMode && <span className="text-xs text-neutral-500">Local-only</span>}
+        {localMode && <span className="text-xs text-neutral-800">Local-only</span>}
       </header>
 
       <main ref={mainRef} className="w-full max-w-[560px] flex-1 px-5 pt-5 pb-28">
