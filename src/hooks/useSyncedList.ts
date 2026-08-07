@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { collection, deleteDoc, doc, onSnapshot, setDoc, writeBatch } from 'firebase/firestore'
+import { collection, deleteDoc, doc, getDoc, onSnapshot, setDoc, writeBatch } from 'firebase/firestore'
 import { db, firebaseEnabled } from '../lib/firebase'
 import { useLocalStorage } from './useLocalStorage'
 
@@ -35,6 +35,7 @@ export function useSyncedList<T extends WithId>(
   const [remoteItems, setRemoteItems] = useState<T[] | null>(null)
   const [remoteReady, setRemoteReady] = useState(false)
   const seededRef = useRef(false)
+  const markerCheckedRef = useRef(false)
 
   const useRemote = firebaseEnabled && Boolean(uid) && Boolean(db)
 
@@ -46,21 +47,58 @@ export function useSyncedList<T extends WithId>(
       return
     }
     seededRef.current = false
+    markerCheckedRef.current = false
     const colRef = collection(database, 'users', uid, collectionName)
+    // Records that this collection has had its starter data written once. Without
+    // it, emptying a list by deleting every item would look like a brand-new
+    // account and the starter data would silently come back.
+    const seedMarkerRef = doc(database, 'users', uid, 'meta', collectionName)
+
     const unsub = onSnapshot(colRef, (snap) => {
       if (snap.empty && !seededRef.current && seed.length > 0) {
         seededRef.current = true
-        const batch = writeBatch(database)
-        seed.forEach((item) => batch.set(doc(colRef, item.id), forFirestore(item)))
-        batch.commit().catch((err) => {
-          // Surface the failure rather than leaving the collection silently empty.
-          console.error(`Failed to seed "${collectionName}" in Firestore:`, err)
-          seededRef.current = false
-        })
-        setRemoteItems(seed)
-        setRemoteReady(true)
+        void (async () => {
+          try {
+            const marker = await getDoc(seedMarkerRef)
+            if (marker.exists()) {
+              // Already seeded before — the list is empty because the user
+              // deleted everything, which we must respect.
+              setRemoteItems([])
+              setRemoteReady(true)
+              return
+            }
+            const batch = writeBatch(database)
+            seed.forEach((item) => batch.set(doc(colRef, item.id), forFirestore(item)))
+            // Same batch, so the marker is only set if the seed itself succeeds.
+            batch.set(seedMarkerRef, { seeded: true, at: new Date().toISOString() })
+            await batch.commit()
+            setRemoteItems(seed)
+            setRemoteReady(true)
+          } catch (err) {
+            console.error(`Failed to seed "${collectionName}" in Firestore:`, err)
+            seededRef.current = false
+            setRemoteItems([])
+            setRemoteReady(true)
+          }
+        })()
         return
       }
+      // Backfill the marker for collections seeded before it existed, so the
+      // first "delete everything" on an older account is respected too.
+      if (!snap.empty && !markerCheckedRef.current) {
+        markerCheckedRef.current = true
+        void (async () => {
+          try {
+            const marker = await getDoc(seedMarkerRef)
+            if (!marker.exists()) {
+              await setDoc(seedMarkerRef, { seeded: true, at: new Date().toISOString() })
+            }
+          } catch {
+            // Non-critical: worst case the marker is written on a later load.
+          }
+        })()
+      }
+
       setRemoteItems(snap.docs.map((d) => d.data() as T))
       setRemoteReady(true)
     })

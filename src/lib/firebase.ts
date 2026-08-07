@@ -1,6 +1,6 @@
 import { initializeApp, type FirebaseOptions } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
-import { initializeFirestore } from 'firebase/firestore'
+import { connectAuthEmulator, getAuth } from 'firebase/auth'
+import { connectFirestoreEmulator, initializeFirestore } from 'firebase/firestore'
 
 const config: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -21,3 +21,10 @@ export const auth = app ? getAuth(app) : null
 // ignoreUndefinedProperties keeps an optional field that happens to be
 // undefined from failing an entire write.
 export const db = app ? initializeFirestore(app, { ignoreUndefinedProperties: true }) : null
+
+// Local development against the Firebase emulators, opted into with
+// VITE_FIREBASE_EMULATOR=1. Never active in a production build.
+if (import.meta.env.DEV && import.meta.env.VITE_FIREBASE_EMULATOR === '1' && auth && db) {
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
+  connectFirestoreEmulator(db, '127.0.0.1', 8080)
+}

@@ -47,6 +47,18 @@ Restart the dev server — the app now shows a sign-in screen, and the same acco
 
 Without the Firebase env vars, the deployed app still works — it just runs in single-device, local-storage mode.
 
+## Testing against the Firebase emulators
+
+To exercise sign-in and sync locally without touching real data:
+
+```bash
+npx firebase emulators:start --project demo-lifemgmt --only firestore,auth
+```
+
+Then set `VITE_FIREBASE_EMULATOR=1` in `.env.local` (alongside any placeholder
+`VITE_FIREBASE_*` values) and run `npm run dev`. The emulator connection is
+guarded by `import.meta.env.DEV`, so it can never activate in a production build.
+
 ## Notes
 
 - **Ingredient ↔ inventory matching** is by name (case-insensitive, partial). Keep inventory item names close to the ingredient names used in meals — e.g. meal ingredient "tinned tomatoes" matches inventory item "Tinned tomatoes".
