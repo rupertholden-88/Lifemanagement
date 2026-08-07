@@ -55,8 +55,9 @@ export function RecipesTab() {
         </div>
       )}
 
+      {manualOpen && (
       <ManualRecipeModal
-        open={manualOpen}
+        open
         onClose={() => setManualOpen(false)}
         onSave={(data) => {
           addRecipe({ ...data, liked: true })
@@ -64,6 +65,7 @@ export function RecipesTab() {
           setTimeout(() => setBanner(null), 5000)
         }}
       />
+      )}
     </div>
   )
 }

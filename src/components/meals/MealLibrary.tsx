@@ -70,7 +70,9 @@ export function MealLibrary() {
         ))}
       </div>
 
-      <MealFormModal open={formOpen} onClose={() => setFormOpen(false)} onSave={handleSave} initial={editing} />
+      {formOpen && (
+        <MealFormModal open onClose={() => setFormOpen(false)} onSave={handleSave} initial={editing} />
+      )}
     </div>
   )
 }

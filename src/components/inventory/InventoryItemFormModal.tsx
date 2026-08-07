@@ -10,9 +10,18 @@ interface InventoryItemFormModalProps {
   onSave: (item: Omit<InventoryItem, 'id'>) => void
   initial?: InventoryItem
   defaultCategory?: InventoryCategory
+  /** Subcategories already in use, offered as suggestions to avoid near-duplicates. */
+  existingSubcategories?: string[]
 }
 
-export function InventoryItemFormModal({ open, onClose, onSave, initial, defaultCategory }: InventoryItemFormModalProps) {
+export function InventoryItemFormModal({
+  open,
+  onClose,
+  onSave,
+  initial,
+  defaultCategory,
+  existingSubcategories = [],
+}: InventoryItemFormModalProps) {
   const [name, setName] = useState(initial?.name ?? '')
   const [category, setCategory] = useState<InventoryCategory>(initial?.category ?? defaultCategory ?? 'food')
   const [subcategory, setSubcategory] = useState(initial?.subcategory ?? '')
@@ -81,7 +90,13 @@ export function InventoryItemFormModal({ open, onClose, onSave, initial, default
               onChange={(e) => setSubcategory(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
               placeholder="e.g. Pantry"
+              list="hb-subcategories"
             />
+            <datalist id="hb-subcategories">
+              {existingSubcategories.map((s) => (
+                <option key={s} value={s} />
+              ))}
+            </datalist>
           </label>
         </div>
 

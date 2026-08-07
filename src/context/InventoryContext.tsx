@@ -15,6 +15,8 @@ interface InventoryContextValue {
   decrementForUsage: (id: string) => void
   /** Used when shopping — refills a quantity item above its low threshold, or sets a level item to high. */
   restockItem: (id: string) => void
+  /** Renames a subcategory across every item that uses it, in one write. */
+  renameSubcategory: (from: string, to: string) => void
 }
 
 const InventoryContext = createContext<InventoryContextValue | null>(null)
@@ -28,7 +30,7 @@ const LEVEL_STEP_DOWN: Record<StockLevel, StockLevel> = {
 
 export function InventoryProvider({ children }: { children: ReactNode }) {
   const { uid } = useAuth()
-  const { items, set: setItem, remove: removeItem } = useSyncedList<InventoryItem>(
+  const { items, set: setItem, setMany, remove: removeItem } = useSyncedList<InventoryItem>(
     'hb.inventory.items',
     'inventory',
     uid,
@@ -83,6 +85,15 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const renameSubcategory = (from: string, to: string) => {
+    const trimmed = to.trim()
+    if (!trimmed || trimmed === from) return
+    const affected = items
+      .filter((i) => (i.subcategory || 'Other') === from)
+      .map((i) => ({ ...i, subcategory: trimmed }))
+    if (affected.length > 0) setMany(affected)
+  }
+
   const value: InventoryContextValue = {
     items,
     addItem,
@@ -92,6 +103,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     adjustQuantity,
     decrementForUsage,
     restockItem,
+    renameSubcategory,
   }
 
   return <InventoryContext.Provider value={value}>{children}</InventoryContext.Provider>

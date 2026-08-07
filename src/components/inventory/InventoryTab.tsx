@@ -43,12 +43,15 @@ function ShoppingListView() {
 }
 
 function StockView() {
-  const { items, addItem, updateItem, deleteItem, setStockLevel, adjustQuantity } = useInventory()
+  const { items, addItem, updateItem, deleteItem, setStockLevel, adjustQuantity, renameSubcategory } =
+    useInventory()
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
   const [search, setSearch] = useState('')
   const [lowOnly, setLowOnly] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<InventoryItem | undefined>(undefined)
+  const [renaming, setRenaming] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
 
   const lowStockCount = items.filter(isLowStock).length
 
@@ -67,6 +70,21 @@ function StockView() {
     }
     return Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]))
   }, [filtered])
+
+  const subcategories = useMemo(
+    () => Array.from(new Set(items.map((i) => i.subcategory || 'Other'))).sort((a, b) => a.localeCompare(b)),
+    [items],
+  )
+
+  const startRename = (name: string) => {
+    setRenaming(name)
+    setRenameValue(name)
+  }
+
+  const commitRename = () => {
+    if (renaming) renameSubcategory(renaming, renameValue)
+    setRenaming(null)
+  }
 
   const openNew = () => {
     setEditing(undefined)
@@ -138,7 +156,38 @@ function StockView() {
         <div className="space-y-6">
           {grouped.map(([subcategory, groupItems]) => (
             <div key={subcategory}>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{subcategory}</p>
+              {renaming === subcategory ? (
+                <div className="mb-2 flex items-center gap-2">
+                  <input
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitRename()
+                      if (e.key === 'Escape') setRenaming(null)
+                    }}
+                    autoFocus
+                    className="rounded-lg border border-slate-300 px-2 py-1 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                    aria-label={`Rename ${subcategory}`}
+                  />
+                  <button onClick={commitRename} className="text-xs font-medium text-teal-700 hover:underline">
+                    Save
+                  </button>
+                  <button onClick={() => setRenaming(null)} className="text-xs text-slate-400 hover:text-slate-600">
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="mb-2 flex items-center gap-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{subcategory}</p>
+                  <button
+                    onClick={() => startRename(subcategory)}
+                    className="text-xs font-medium text-slate-300 transition hover:text-teal-700"
+                    title={`Rename "${subcategory}" everywhere it's used`}
+                  >
+                    Rename
+                  </button>
+                </div>
+              )}
               <div className="space-y-2">
                 {groupItems.map((item) => (
                   <InventoryItemRow
@@ -156,7 +205,15 @@ function StockView() {
         </div>
       )}
 
-      <InventoryItemFormModal open={formOpen} onClose={() => setFormOpen(false)} onSave={handleSave} initial={editing} />
+      {formOpen && (
+        <InventoryItemFormModal
+          open
+          onClose={() => setFormOpen(false)}
+          onSave={handleSave}
+          initial={editing}
+          existingSubcategories={subcategories}
+        />
+      )}
     </div>
   )
 }

@@ -22,7 +22,6 @@ export function InventoryItemRow({ item, onAdjustQuantity, onSetLevel, onEdit, o
           <p className="font-medium text-navy-900">{item.name}</p>
           <Badge className={STOCK_LEVEL_COLOR[level]}>{STOCK_LEVEL_LABEL[level]}</Badge>
         </div>
-        <p className="text-xs text-slate-500">{item.subcategory}</p>
         {item.notes && <p className="mt-0.5 text-xs text-slate-400">{item.notes}</p>}
       </div>
 
