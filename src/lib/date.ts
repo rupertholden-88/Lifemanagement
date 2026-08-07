@@ -47,6 +47,14 @@ export function weekRangeLabel(dates: { date: string }[]): string {
   return `${first.toLocaleDateString(undefined, fmt)} – ${last.toLocaleDateString(undefined, fmt)}`
 }
 
+/** Morning/afternoon/evening greeting for the given time. */
+export function timeGreeting(date: Date = new Date()): string {
+  const hour = date.getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
 /** Number of whole weeks between planStart and today (>= 0), used to pick the quality-run rotation. */
 export function weeksSince(planStartIso: string, referenceDate: Date = new Date()): number {
   const start = new Date(planStartIso + 'T00:00:00')

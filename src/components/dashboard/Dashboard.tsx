@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import { useFitness } from '../../context/FitnessContext'
 import { useMeals } from '../../context/MealsContext'
 import { useInventory } from '../../context/InventoryContext'
@@ -8,22 +9,32 @@ import { useMealOptions } from '../../hooks/useMealOptions'
 import { WEEKLY_MAX_POINTS, scheduleForWfhDay } from '../../data/fitnessPlan'
 import { isLowStock } from '../../lib/inventory'
 import { checkMealAvailability } from '../../lib/meals'
-import { isoToday, getWeekDates } from '../../lib/date'
+import { isoToday, getWeekDates, timeGreeting } from '../../lib/date'
 import { weeklyScoreFor } from '../../lib/fitnessScoring'
-import { Banner, Button, Tag } from '../shared/ui'
-import { CheckIcon } from '../shared/icons'
+import { Banner, Button, Modal, Tag, TextInput } from '../shared/ui'
+import { CheckIcon, PencilIcon } from '../shared/icons'
 import type { Section } from '../shared/nav'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const
 
+function firstNameOf(name: string): string {
+  return name.trim().split(/\s+/)[0] ?? ''
+}
+
 export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => void }) {
+  const { authDisplayName } = useAuth()
   const { exerciseLogs } = useFitness()
   const { weeklyPlan, mealLogs } = useMeals()
   const { findMeal } = useMealOptions()
   const { items: inventory } = useInventory()
-  const { wfhDay } = useSettings()
+  const { wfhDay, displayName, setDisplayName } = useSettings()
   const { cookMeal } = useCookMeal()
   const [banner, setBanner] = useState<string | null>(null)
+  const [nameModalOpen, setNameModalOpen] = useState(false)
+  const [nameDraft, setNameDraft] = useState(displayName)
+
+  const name = firstNameOf(displayName || authDisplayName || '')
+  const greeting = timeGreeting()
 
   const dateLabel = new Date()
     .toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })
@@ -60,13 +71,53 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
     setTimeout(() => setBanner(null), 5000)
   }
 
+  const openNameModal = () => {
+    setNameDraft(displayName)
+    setNameModalOpen(true)
+  }
+
+  const saveName = () => {
+    setDisplayName(nameDraft)
+    setNameModalOpen(false)
+  }
+
   return (
     <div>
       <p className="mb-2.5 text-[11px] font-semibold tracking-[0.16em] text-accent-700">{dateLabel}</p>
-      <h1 className="mb-2.5 text-[36px] leading-[1.05] font-semibold tracking-[-0.03em] text-ink">Welcome back</h1>
+      <div className="mb-2.5 flex items-center gap-2">
+        <h1 className="text-[36px] leading-[1.05] font-semibold tracking-[-0.03em] text-ink">
+          {greeting}
+          {name ? `, ${name}` : ''}
+        </h1>
+        <button
+          onClick={openNameModal}
+          aria-label={name ? 'Edit your name' : 'Add your name'}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-accent-700"
+        >
+          <PencilIcon width={15} height={15} />
+        </button>
+      </div>
       <p className="mb-6 text-[15px] leading-relaxed text-neutral-700">
         {summary.charAt(0).toUpperCase() + summary.slice(1)}.
       </p>
+
+      {nameModalOpen && (
+        <Modal open onClose={() => setNameModalOpen(false)} title="What should we call you?">
+          <TextInput
+            value={nameDraft}
+            onChange={(e) => setNameDraft(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && saveName()}
+            placeholder="Your first name"
+            autoFocus
+          />
+          <div className="mt-5 flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setNameModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveName}>Save</Button>
+          </div>
+        </Modal>
+      )}
 
       {banner && <Banner>{banner}</Banner>}
 

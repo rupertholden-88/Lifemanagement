@@ -21,6 +21,8 @@ type AuthStatus = 'loading' | 'signed-out' | 'signed-in'
 interface AuthContextValue {
   uid: string | null
   email: string | null
+  /** From the sign-in provider — populated automatically for Google sign-in, null for email/password. */
+  authDisplayName: string | null
   status: AuthStatus
   /** True when no Firebase project is configured — app runs single-device, no login required. */
   localMode: boolean
@@ -68,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value: AuthContextValue = {
     uid: firebaseEnabled ? user?.uid ?? null : 'local',
     email: firebaseEnabled ? user?.email ?? null : null,
+    authDisplayName: firebaseEnabled ? user?.displayName ?? null : null,
     status,
     localMode: !firebaseEnabled,
     signIn,

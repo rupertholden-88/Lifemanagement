@@ -6,6 +6,8 @@ import type { DayOfWeek } from '../types'
 interface SettingsDoc {
   id: 'settings'
   wfhDay: DayOfWeek
+  /** Overrides the sign-in provider's name in greetings — set by the user, works in every auth mode. */
+  displayName?: string
 }
 
 const DEFAULTS: SettingsDoc = { id: 'settings', wfhDay: 'Wednesday' }
@@ -13,6 +15,8 @@ const DEFAULTS: SettingsDoc = { id: 'settings', wfhDay: 'Wednesday' }
 interface SettingsContextValue {
   wfhDay: DayOfWeek
   setWfhDay: (day: DayOfWeek) => void
+  displayName: string
+  setDisplayName: (name: string) => void
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null)
@@ -27,8 +31,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     set({ ...settings, wfhDay: day })
   }
 
+  const setDisplayName = (name: string) => {
+    set({ ...settings, displayName: name.trim() })
+  }
+
   return (
-    <SettingsContext.Provider value={{ wfhDay: settings.wfhDay, setWfhDay }}>
+    <SettingsContext.Provider
+      value={{ wfhDay: settings.wfhDay, setWfhDay, displayName: settings.displayName ?? '', setDisplayName }}
+    >
       {children}
     </SettingsContext.Provider>
   )
