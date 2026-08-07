@@ -4,8 +4,16 @@ export function isoToday(): string {
   return toIso(new Date())
 }
 
+/**
+ * Local-calendar ISO date (yyyy-mm-dd). Built from local date parts rather than
+ * toISOString(), which converts to UTC and would shift the date by a day for
+ * anyone east of Greenwich (BST included).
+ */
 export function toIso(date: Date): string {
-  return date.toISOString().slice(0, 10)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 /** Monday-indexed day-of-week for a Date (0 = Monday .. 6 = Sunday). */

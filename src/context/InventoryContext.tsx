@@ -13,6 +13,8 @@ interface InventoryContextValue {
   adjustQuantity: (id: string, delta: number) => void
   /** Used when logging a cooked meal — steps a level down or removes one unit of quantity. */
   decrementForUsage: (id: string) => void
+  /** Used when shopping — refills a quantity item above its low threshold, or sets a level item to high. */
+  restockItem: (id: string) => void
 }
 
 const InventoryContext = createContext<InventoryContextValue | null>(null)
@@ -69,6 +71,18 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const restockItem = (id: string) => {
+    const existing = items.find((i) => i.id === id)
+    if (!existing) return
+    if (existing.trackingMode === 'quantity') {
+      const threshold = existing.lowThreshold ?? 0
+      const refill = Math.max(threshold * 2, threshold + 2, 2)
+      setItem({ ...existing, quantity: refill })
+    } else {
+      setItem({ ...existing, stockLevel: 'high' })
+    }
+  }
+
   const value: InventoryContextValue = {
     items,
     addItem,
@@ -77,6 +91,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     setStockLevel,
     adjustQuantity,
     decrementForUsage,
+    restockItem,
   }
 
   return <InventoryContext.Provider value={value}>{children}</InventoryContext.Provider>

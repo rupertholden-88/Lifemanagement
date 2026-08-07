@@ -10,20 +10,33 @@ interface MealCardProps {
   onEdit?: () => void
   onDelete?: () => void
   cooked?: boolean
+  fromRecipe?: boolean
 }
 
-export function MealCard({ meal, availability, onToggleLiked, onCook, onEdit, onDelete, cooked }: MealCardProps) {
+export function MealCard({
+  meal,
+  availability,
+  onToggleLiked,
+  onCook,
+  onEdit,
+  onDelete,
+  cooked,
+  fromRecipe,
+}: MealCardProps) {
   const ready = availability.missing.length === 0
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-3.5">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
             <p className="font-medium text-navy-900">{meal.name}</p>
             <button onClick={onToggleLiked} className="text-sm" aria-label="Toggle liked">
               {meal.liked ? '❤️' : '🤍'}
             </button>
+            {fromRecipe && (
+              <Badge className="bg-violet-50 text-violet-700 ring-violet-600/20">Recipe</Badge>
+            )}
           </div>
           {(meal.kcal || meal.protein) && (
             <p className="text-xs text-slate-500">

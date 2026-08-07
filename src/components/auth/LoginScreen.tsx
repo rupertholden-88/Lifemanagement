@@ -42,9 +42,6 @@ export function LoginScreen() {
     <div className="flex min-h-screen items-center justify-center bg-navy-950 px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-500/20 text-2xl">
-            🏠
-          </div>
           <h1 className="font-display text-3xl font-semibold text-white">Life Management</h1>
           <p className="mt-1 text-sm text-slate-400">Fitness, meals & household inventory</p>
         </div>

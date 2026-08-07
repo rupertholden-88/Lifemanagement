@@ -8,6 +8,18 @@ interface WithId {
 }
 
 /**
+ * Firestore rejects any document containing an `undefined` value, which would
+ * fail the whole write. Optional fields are simply omitted instead.
+ */
+function forFirestore<T extends WithId>(item: T): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(item)) {
+    if (value !== undefined) out[key] = value
+  }
+  return out
+}
+
+/**
  * A list of records that lives in Firestore (per signed-in user) when Firebase is
  * configured and a uid is available, and falls back to localStorage otherwise —
  * so the app works standalone with zero setup, and syncs across devices once
@@ -39,8 +51,12 @@ export function useSyncedList<T extends WithId>(
       if (snap.empty && !seededRef.current && seed.length > 0) {
         seededRef.current = true
         const batch = writeBatch(database)
-        seed.forEach((item) => batch.set(doc(colRef, item.id), item as Record<string, unknown>))
-        batch.commit().catch(() => {})
+        seed.forEach((item) => batch.set(doc(colRef, item.id), forFirestore(item)))
+        batch.commit().catch((err) => {
+          // Surface the failure rather than leaving the collection silently empty.
+          console.error(`Failed to seed "${collectionName}" in Firestore:`, err)
+          seededRef.current = false
+        })
         setRemoteItems(seed)
         setRemoteReady(true)
         return
@@ -57,7 +73,7 @@ export function useSyncedList<T extends WithId>(
 
   const set = async (item: T) => {
     if (useRemote && db && uid) {
-      await setDoc(doc(db, 'users', uid, collectionName, item.id), item as Record<string, unknown>)
+      await setDoc(doc(db, 'users', uid, collectionName, item.id), forFirestore(item))
     } else {
       setLocalItems((prev) => {
         const exists = prev.some((p) => p.id === item.id)
@@ -70,7 +86,7 @@ export function useSyncedList<T extends WithId>(
     if (useRemote && db && uid) {
       const colRef = collection(db, 'users', uid, collectionName)
       const batch = writeBatch(db)
-      newItems.forEach((item) => batch.set(doc(colRef, item.id), item as Record<string, unknown>))
+      newItems.forEach((item) => batch.set(doc(colRef, item.id), forFirestore(item)))
       await batch.commit()
     } else {
       setLocalItems((prev) => {
@@ -93,7 +109,7 @@ export function useSyncedList<T extends WithId>(
     if (useRemote && db && uid) {
       const colRef = collection(db, 'users', uid, collectionName)
       const batch = writeBatch(db)
-      newItems.forEach((item) => batch.set(doc(colRef, item.id), item as Record<string, unknown>))
+      newItems.forEach((item) => batch.set(doc(colRef, item.id), forFirestore(item)))
       await batch.commit()
     } else {
       setLocalItems(newItems)

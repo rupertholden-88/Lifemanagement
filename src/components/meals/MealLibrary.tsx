@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import { useMeals } from '../../context/MealsContext'
 import { useInventory } from '../../context/InventoryContext'
+import { useMealOptions, isRecipeMeal } from '../../hooks/useMealOptions'
 import { checkMealAvailability } from '../../lib/meals'
 import { MealCard } from './MealCard'
 import { MealFormModal } from './MealFormModal'
-import { Button, SectionTitle } from '../shared/ui'
+import { Button, SectionTitle, Badge } from '../shared/ui'
 import type { Meal } from '../../types'
 
 export function MealLibrary() {
-  const { meals, addMeal, updateMeal, deleteMeal, toggleLiked } = useMeals()
+  const { addMeal, updateMeal } = useMeals()
+  const { allMeals, toggleLikedAny, deleteAny } = useMealOptions()
   const { items: inventory } = useInventory()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Meal | undefined>(undefined)
@@ -28,22 +30,42 @@ export function MealLibrary() {
     else addMeal(data)
   }
 
+  const handleDelete = (meal: Meal) => {
+    const extra = isRecipeMeal(meal.id) ? ' This removes it from your recipe bank too.' : ''
+    if (window.confirm(`Delete "${meal.name}"?${extra}`)) {
+      deleteAny(meal.id)
+    }
+  }
+
+  const recipeCount = allMeals.filter((m) => isRecipeMeal(m.id)).length
+
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <SectionTitle title="Meal library" subtitle="All meals, including your own additions" />
+      <div className="mb-4 flex items-start justify-between">
+        <SectionTitle
+          title="Meal library"
+          subtitle="Every meal you can plan — including everything saved in your recipe bank"
+        />
         <Button onClick={openNew}>+ Add meal</Button>
       </div>
 
+      {recipeCount > 0 && (
+        <p className="mb-3 text-xs text-slate-500">
+          {recipeCount} of these come from your recipe bank — marked{' '}
+          <Badge className="bg-violet-50 text-violet-700 ring-violet-600/20">Recipe</Badge>.
+        </p>
+      )}
+
       <div className="grid gap-3 sm:grid-cols-2">
-        {meals.map((meal) => (
+        {allMeals.map((meal) => (
           <MealCard
             key={meal.id}
             meal={meal}
             availability={checkMealAvailability(meal, inventory)}
-            onToggleLiked={() => toggleLiked(meal.id)}
-            onEdit={() => openEdit(meal)}
-            onDelete={meal.isCustom ? () => deleteMeal(meal.id) : undefined}
+            fromRecipe={isRecipeMeal(meal.id)}
+            onToggleLiked={() => toggleLikedAny(meal.id)}
+            onEdit={isRecipeMeal(meal.id) ? undefined : () => openEdit(meal)}
+            onDelete={() => handleDelete(meal)}
           />
         ))}
       </div>

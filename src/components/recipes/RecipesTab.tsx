@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useRecipes } from '../../context/RecipesContext'
-import { useMeals } from '../../context/MealsContext'
 import { RecipeImport } from './RecipeImport'
 import { RecipeCard } from './RecipeCard'
 import { SectionTitle, Button, EmptyState, Modal } from '../shared/ui'
@@ -8,27 +7,12 @@ import type { Recipe } from '../../types'
 
 export function RecipesTab() {
   const { recipes, addRecipe, deleteRecipe, toggleLiked } = useRecipes()
-  const { meals, addMeal } = useMeals()
   const [manualOpen, setManualOpen] = useState(false)
   const [banner, setBanner] = useState<string | null>(null)
-
-  const mealNames = new Set(meals.map((m) => m.name.toLowerCase()))
 
   const handleImported = (data: Omit<Recipe, 'id' | 'addedAt' | 'liked'>) => {
     addRecipe({ ...data, liked: true })
     setBanner(`Imported "${data.title}" — ${data.ingredients.length} ingredients found`)
-    setTimeout(() => setBanner(null), 5000)
-  }
-
-  const handleAddToMeals = (recipe: Recipe) => {
-    addMeal({
-      name: recipe.title,
-      type: 'dinner',
-      ingredients: recipe.ingredients,
-      liked: recipe.liked,
-      notes: recipe.url ? `From recipe bank · ${recipe.url}` : 'From recipe bank',
-    })
-    setBanner(`"${recipe.title}" added to your meal library — it'll show in dinner options and suggestions`)
     setTimeout(() => setBanner(null), 5000)
   }
 
@@ -39,7 +23,7 @@ export function RecipesTab() {
       <div className="mb-4 flex items-start justify-between">
         <SectionTitle
           title="Recipe bank"
-          subtitle="Save recipe links — ingredients and method are summarised for you"
+          subtitle="Save recipe links — every recipe here is automatically available as a dinner in Meals"
         />
         <Button variant="secondary" onClick={() => setManualOpen(true)}>
           + Add manually
@@ -66,8 +50,6 @@ export function RecipesTab() {
               recipe={recipe}
               onToggleLiked={() => toggleLiked(recipe.id)}
               onDelete={() => deleteRecipe(recipe.id)}
-              onAddToMeals={() => handleAddToMeals(recipe)}
-              alreadyInMeals={mealNames.has(recipe.title.toLowerCase())}
             />
           ))}
         </div>

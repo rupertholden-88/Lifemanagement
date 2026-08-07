@@ -6,11 +6,9 @@ interface RecipeCardProps {
   recipe: Recipe
   onToggleLiked: () => void
   onDelete: () => void
-  onAddToMeals: () => void
-  alreadyInMeals: boolean
 }
 
-export function RecipeCard({ recipe, onToggleLiked, onDelete, onAddToMeals, alreadyInMeals }: RecipeCardProps) {
+export function RecipeCard({ recipe, onToggleLiked, onDelete }: RecipeCardProps) {
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -69,9 +67,7 @@ export function RecipeCard({ recipe, onToggleLiked, onDelete, onAddToMeals, alre
         <Button variant="secondary" onClick={() => setExpanded((e) => !e)}>
           {expanded ? 'Hide details' : 'View recipe'}
         </Button>
-        <Button variant={alreadyInMeals ? 'ghost' : 'primary'} onClick={onAddToMeals} disabled={alreadyInMeals}>
-          {alreadyInMeals ? '✓ In meal library' : '+ Add to meals'}
-        </Button>
+        <Badge className="bg-violet-50 text-violet-700 ring-violet-600/20">In meal library</Badge>
         {recipe.url && (
           <a
             href={recipe.url}

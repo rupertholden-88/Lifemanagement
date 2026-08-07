@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMeals } from '../../context/MealsContext'
 import { useInventory } from '../../context/InventoryContext'
+import { useMealOptions, isRecipeMeal } from '../../hooks/useMealOptions'
 import { useCookMeal } from '../../hooks/useCookMeal'
 import { suggestMeals } from '../../lib/meals'
 import { isoToday } from '../../lib/date'
@@ -17,7 +18,8 @@ const TYPES: { value: MealType | 'all'; label: string }[] = [
 ]
 
 export function Suggestions() {
-  const { meals, toggleLiked, mealLogs } = useMeals()
+  const { mealLogs } = useMeals()
+  const { allMeals, findMeal, toggleLikedAny, deleteAny } = useMealOptions()
   const { items: inventory } = useInventory()
   const { cookMeal } = useCookMeal()
   const [type, setType] = useState<MealType | 'all'>('all')
@@ -29,15 +31,15 @@ export function Suggestions() {
 
   const results = useMemo(
     () =>
-      suggestMeals(meals, inventory, {
+      suggestMeals(allMeals, inventory, {
         type: type === 'all' ? undefined : type,
         onlyLiked,
       }),
-    [meals, inventory, type, onlyLiked],
+    [allMeals, inventory, type, onlyLiked],
   )
 
   const handleCook = (mealId: string) => {
-    const meal = meals.find((m) => m.id === mealId)
+    const meal = findMeal(mealId)
     if (!meal) return
     const result = cookMeal(meal, today)
     setBanner(
@@ -84,9 +86,16 @@ export function Suggestions() {
               key={meal.id}
               meal={meal}
               availability={availability}
-              onToggleLiked={() => toggleLiked(meal.id)}
+              fromRecipe={isRecipeMeal(meal.id)}
+              onToggleLiked={() => toggleLikedAny(meal.id)}
               onCook={() => handleCook(meal.id)}
               cooked={loggedToday.has(meal.id)}
+              onDelete={() => {
+                const extra = isRecipeMeal(meal.id) ? ' This removes it from your recipe bank too.' : ''
+                if (window.confirm(`Delete "${meal.name}"?${extra}`)) {
+                  deleteAny(meal.id)
+                }
+              }}
             />
           ))}
         </div>

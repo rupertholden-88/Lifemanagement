@@ -19,8 +19,7 @@ export function AppShell({ section, onSectionChange }: AppShellProps) {
     <div className="min-h-screen bg-slate-50 lg:flex">
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-navy-950 px-4 py-6 lg:flex">
-        <div className="mb-8 flex items-center gap-2 px-2">
-          <span className="text-2xl">🏠</span>
+        <div className="mb-8 px-2">
           <span className="font-display text-xl font-semibold text-white">Life Management</span>
         </div>
         <nav className="flex flex-1 flex-col gap-1">
@@ -58,10 +57,7 @@ export function AppShell({ section, onSectionChange }: AppShellProps) {
 
       {/* Mobile top bar */}
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🏠</span>
-          <span className="font-display text-lg font-semibold text-navy-900">Life Management</span>
-        </div>
+        <span className="font-display text-lg font-semibold text-navy-900">Life Management</span>
         {!localMode && (
           <button onClick={() => signOutUser()} className="text-sm font-medium text-teal-700">
             Sign out

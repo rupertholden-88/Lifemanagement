@@ -4,6 +4,7 @@ import { useMeals } from '../../context/MealsContext'
 import { useInventory } from '../../context/InventoryContext'
 import { useSettings } from '../../context/SettingsContext'
 import { useCookMeal } from '../../hooks/useCookMeal'
+import { useMealOptions } from '../../hooks/useMealOptions'
 import { WEEKLY_MAX_POINTS, scheduleForWfhDay } from '../../data/fitnessPlan'
 import { isLowStock } from '../../lib/inventory'
 import { checkMealAvailability } from '../../lib/meals'
@@ -16,7 +17,8 @@ const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 
 export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => void }) {
   const { exerciseLogs } = useFitness()
-  const { meals, weeklyPlan, mealLogs } = useMeals()
+  const { weeklyPlan, mealLogs } = useMeals()
+  const { findMeal } = useMealOptions()
   const { items: inventory } = useInventory()
   const { wfhDay } = useSettings()
   const { cookMeal } = useCookMeal()
@@ -29,7 +31,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
   const todayLog = exerciseLogs.find((l) => l.sessionId === todaySession?.id && l.date === today)
 
   const todayDinnerEntry = weeklyPlan.find((e) => e.day === todayDayName)
-  const todayDinner = todayDinnerEntry?.mealId ? meals.find((m) => m.id === todayDinnerEntry.mealId) : undefined
+  const todayDinner = todayDinnerEntry?.mealId ? findMeal(todayDinnerEntry.mealId) : undefined
   const dinnerAvailability = todayDinner ? checkMealAvailability(todayDinner, inventory) : null
   const dinnerCooked = todayDinner ? mealLogs.some((l) => l.date === today && l.mealId === todayDinner.id) : false
 

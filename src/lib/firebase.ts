@@ -1,6 +1,6 @@
 import { initializeApp, type FirebaseOptions } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore } from 'firebase/firestore'
 
 const config: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,4 +17,7 @@ export const firebaseEnabled = Boolean(config.apiKey && config.projectId && conf
 const app = firebaseEnabled ? initializeApp(config) : null
 
 export const auth = app ? getAuth(app) : null
-export const db = app ? getFirestore(app) : null
+
+// ignoreUndefinedProperties keeps an optional field that happens to be
+// undefined from failing an entire write.
+export const db = app ? initializeFirestore(app, { ignoreUndefinedProperties: true }) : null

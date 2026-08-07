@@ -17,7 +17,9 @@ const level = (
   unit,
   trackingMode: 'level',
   stockLevel,
-  amazonUrl,
+  // Only include the key when there's a real URL — an undefined value would
+  // otherwise be rejected by Firestore.
+  ...(amazonUrl ? { amazonUrl } : {}),
 })
 
 const qty = (

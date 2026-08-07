@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMeals } from '../../context/MealsContext'
 import { useInventory } from '../../context/InventoryContext'
+import { useMealOptions } from '../../hooks/useMealOptions'
 import { useCookMeal } from '../../hooks/useCookMeal'
 import { checkMealAvailability } from '../../lib/meals'
 import { getWeekDates, formatDayLabel, isoToday } from '../../lib/date'
@@ -8,21 +9,22 @@ import { Card, Badge } from '../shared/ui'
 import { SEED_MEALS } from '../../data/mealPlan'
 
 export function WeeklyPlan() {
-  const { meals, weeklyPlan, setWeeklyPlanDay, mealLogs } = useMeals()
+  const { weeklyPlan, setWeeklyPlanDay, mealLogs } = useMeals()
+  const { allMeals, findMeal } = useMealOptions()
   const { items: inventory } = useInventory()
   const { cookMeal } = useCookMeal()
   const [banner, setBanner] = useState<string | null>(null)
 
   const week = useMemo(() => getWeekDates(new Date(), 0), [])
   const today = isoToday()
-  const dinnerOptions = meals.filter((m) => m.type === 'dinner')
+  const dinnerOptions = allMeals.filter((m) => m.type === 'dinner')
   const breakfast = SEED_MEALS.filter((m) => m.type === 'breakfast')
   const lunch = SEED_MEALS.filter((m) => m.type === 'lunch')
 
   const loggedToday = new Set(mealLogs.filter((l) => l.date === today).map((l) => l.mealId))
 
   const handleCook = (mealId: string, date: string) => {
-    const meal = meals.find((m) => m.id === mealId)
+    const meal = findMeal(mealId)
     if (!meal) return
     const result = cookMeal(meal, date)
     setBanner(
@@ -41,7 +43,7 @@ export function WeeklyPlan() {
         <div className="mb-3 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">{banner}</div>
       )}
 
-      <Card className="mb-4">
+      <Card className="mb-6">
         <p className="mb-1 text-sm font-semibold text-navy-900">Breakfast & lunch</p>
         <p className="text-xs text-slate-500">
           Same repeatable options every day — pick whichever's easiest.
@@ -55,10 +57,18 @@ export function WeeklyPlan() {
         </div>
       </Card>
 
+      <div className="mb-2">
+        <p className="text-sm font-semibold text-navy-900">Dinners</p>
+        <p className="text-xs text-slate-500">
+          One per night — change any day from the dropdown. “Cook this” logs it and takes the
+          ingredients out of your stock.
+        </p>
+      </div>
+
       <div className="space-y-2">
         {week.map(({ day, date }) => {
           const entry = weeklyPlan.find((e) => e.day === day)
-          const meal = entry?.mealId ? meals.find((m) => m.id === entry.mealId) : undefined
+          const meal = entry?.mealId ? findMeal(entry.mealId) : undefined
           const availability = meal ? checkMealAvailability(meal, inventory) : null
           const cooked = meal ? loggedToday.has(meal.id) && date === today : false
 
