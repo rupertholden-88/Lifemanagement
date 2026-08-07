@@ -17,13 +17,13 @@ export function InventoryTab() {
       <div className="mb-5 flex gap-1 rounded-lg bg-slate-100 p-1 text-sm font-medium">
         <button
           onClick={() => setView('stock')}
-          className={`flex-1 rounded-md py-1.5 transition ${view === 'stock' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500'}`}
+          className={`min-h-10 flex-1 rounded-md py-2 transition ${view === 'stock' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500'}`}
         >
           In stock
         </button>
         <button
           onClick={() => setView('shopping')}
-          className={`flex-1 rounded-md py-1.5 transition ${view === 'shopping' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500'}`}
+          className={`min-h-10 flex-1 rounded-md py-2 transition ${view === 'shopping' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500'}`}
         >
           Shopping list
         </button>
@@ -126,7 +126,7 @@ function StockView() {
           <button
             key={c}
             onClick={() => setCategoryFilter(c)}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+            className={`min-h-10 rounded-full px-4 py-2 text-sm font-medium transition ${
               categoryFilter === c ? 'bg-navy-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -137,14 +137,14 @@ function StockView() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search…"
-          className="ml-auto w-40 rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+          className="ml-auto min-h-10 w-40 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
         />
-        <label className="flex items-center gap-1.5 text-sm text-slate-600">
+        <label className="flex min-h-10 items-center gap-2 px-1 text-sm text-slate-600">
           <input
             type="checkbox"
             checked={lowOnly}
             onChange={(e) => setLowOnly(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+            className="h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
           />
           Low stock only
         </label>
@@ -166,13 +166,19 @@ function StockView() {
                       if (e.key === 'Escape') setRenaming(null)
                     }}
                     autoFocus
-                    className="rounded-lg border border-slate-300 px-2 py-1 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                    className="min-h-10 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 sm:flex-none"
                     aria-label={`Rename ${subcategory}`}
                   />
-                  <button onClick={commitRename} className="text-xs font-medium text-teal-700 hover:underline">
+                  <button
+                    onClick={commitRename}
+                    className="min-h-10 rounded-md px-3 text-xs font-medium text-teal-700 hover:bg-teal-50"
+                  >
                     Save
                   </button>
-                  <button onClick={() => setRenaming(null)} className="text-xs text-slate-400 hover:text-slate-600">
+                  <button
+                    onClick={() => setRenaming(null)}
+                    className="min-h-10 rounded-md px-3 text-xs text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                  >
                     Cancel
                   </button>
                 </div>
@@ -181,7 +187,7 @@ function StockView() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{subcategory}</p>
                   <button
                     onClick={() => startRename(subcategory)}
-                    className="text-xs font-medium text-slate-300 transition hover:text-teal-700"
+                    className="min-h-10 rounded-md px-2 text-xs font-medium text-slate-400 transition hover:bg-slate-100 hover:text-teal-700"
                     title={`Rename "${subcategory}" everywhere it's used`}
                   >
                     Rename

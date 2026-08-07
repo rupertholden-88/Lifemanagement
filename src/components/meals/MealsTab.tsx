@@ -25,7 +25,7 @@ export function MealsTab() {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 rounded-md py-1.5 transition ${
+            className={`min-h-10 flex-1 rounded-md py-2 transition ${
               tab === t.id ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500'
             }`}
           >

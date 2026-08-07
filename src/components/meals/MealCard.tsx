@@ -32,7 +32,11 @@ export function MealCard({
         <div>
           <div className="flex flex-wrap items-center gap-1.5">
             <p className="font-medium text-navy-900">{meal.name}</p>
-            <button onClick={onToggleLiked} className="text-sm" aria-label="Toggle liked">
+            <button
+              onClick={onToggleLiked}
+              className="-my-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base transition hover:bg-slate-100"
+              aria-label="Toggle liked"
+            >
               {meal.liked ? '❤️' : '🤍'}
             </button>
             {fromRecipe && (

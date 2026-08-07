@@ -125,17 +125,17 @@ export function ShoppingList() {
                 const level = getEffectiveLevel(item)
                 const isTicked = tickedSet.has(item.id)
                 return (
-                  <li key={item.id} className="flex items-center gap-3 py-2">
+                  <li key={item.id} className="flex items-center gap-3 py-1">
                     <input
                       type="checkbox"
                       checked={isTicked}
                       onChange={() => toggle(item.id)}
-                      className="h-4 w-4 shrink-0 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                      className="h-5 w-5 shrink-0 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
                       aria-label={`Tick off ${item.name}`}
                     />
                     <button
                       onClick={() => toggle(item.id)}
-                      className={`flex-1 text-left text-sm ${
+                      className={`min-h-11 flex-1 text-left text-sm ${
                         isTicked ? 'text-slate-400 line-through' : 'text-slate-700'
                       }`}
                     >
@@ -162,7 +162,7 @@ export function ShoppingList() {
                     )}
                     <button
                       onClick={() => handleBought(item.id)}
-                      className="shrink-0 rounded-md bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700 transition hover:bg-teal-100"
+                      className="min-h-10 shrink-0 rounded-md bg-teal-50 px-3 text-xs font-medium text-teal-700 transition hover:bg-teal-100"
                       title="Restock this item and remove it from the list"
                     >
                       Bought
@@ -184,17 +184,17 @@ export function ShoppingList() {
               {untrackedForPlan.map((m) => {
                 const isTicked = tickedSet.has(m.ingredient)
                 return (
-                  <li key={m.ingredient} className="flex items-center gap-3 py-2">
+                  <li key={m.ingredient} className="flex items-center gap-3 py-1">
                     <input
                       type="checkbox"
                       checked={isTicked}
                       onChange={() => toggle(m.ingredient)}
-                      className="h-4 w-4 shrink-0 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                      className="h-5 w-5 shrink-0 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
                       aria-label={`Tick off ${m.ingredient}`}
                     />
                     <button
                       onClick={() => toggle(m.ingredient)}
-                      className={`flex-1 text-left text-sm ${
+                      className={`min-h-11 flex-1 text-left text-sm ${
                         isTicked ? 'text-slate-400 line-through' : 'text-slate-700'
                       }`}
                     >
@@ -203,7 +203,7 @@ export function ShoppingList() {
                     </button>
                     <button
                       onClick={() => handleAddToStock(m.ingredient)}
-                      className="shrink-0 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-200"
+                      className="min-h-10 shrink-0 rounded-md bg-slate-100 px-3 text-xs font-medium text-slate-600 transition hover:bg-slate-200"
                       title="Start tracking this in your stock"
                     >
                       + Add to stock

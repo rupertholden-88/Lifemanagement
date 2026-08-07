@@ -30,7 +30,7 @@ export function InventoryItemRow({ item, onAdjustQuantity, onSetLevel, onEdit, o
           <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-1.5 py-1">
             <button
               onClick={() => onAdjustQuantity(-1)}
-              className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-slate-600 shadow-sm hover:bg-slate-50"
+              className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-lg text-slate-600 shadow-sm hover:bg-slate-50"
               aria-label={`Decrease ${item.name}`}
             >
               −
@@ -40,7 +40,7 @@ export function InventoryItemRow({ item, onAdjustQuantity, onSetLevel, onEdit, o
             </span>
             <button
               onClick={() => onAdjustQuantity(1)}
-              className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-slate-600 shadow-sm hover:bg-slate-50"
+              className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-lg text-slate-600 shadow-sm hover:bg-slate-50"
               aria-label={`Increase ${item.name}`}
             >
               +
@@ -52,7 +52,7 @@ export function InventoryItemRow({ item, onAdjustQuantity, onSetLevel, onEdit, o
               <button
                 key={lvl}
                 onClick={() => onSetLevel(lvl)}
-                className={`px-2.5 py-1.5 transition ${
+                className={`min-h-10 px-3 py-2 transition ${
                   item.stockLevel === lvl ? 'bg-navy-900 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'
                 }`}
               >
@@ -67,18 +67,26 @@ export function InventoryItemRow({ item, onAdjustQuantity, onSetLevel, onEdit, o
             href={item.amazonUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-lg bg-orange-50 px-2.5 py-1.5 text-xs font-medium text-orange-700 hover:bg-orange-100"
+            className="flex min-h-10 items-center rounded-lg bg-orange-50 px-3 py-2 text-xs font-medium text-orange-700 hover:bg-orange-100"
           >
             Reorder on Amazon ↗
           </a>
         )}
 
-        <button onClick={onEdit} className="text-xs font-medium text-slate-500 hover:text-slate-700">
-          Edit
-        </button>
-        <button onClick={onDelete} className="text-xs font-medium text-slate-400 hover:text-red-600">
-          Remove
-        </button>
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            onClick={onEdit}
+            className="min-h-10 rounded-md px-3 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+          >
+            Edit
+          </button>
+          <button
+            onClick={onDelete}
+            className="min-h-10 rounded-md px-3 text-xs font-medium text-slate-400 hover:bg-red-50 hover:text-red-600"
+          >
+            Remove
+          </button>
+        </div>
       </div>
     </div>
   )

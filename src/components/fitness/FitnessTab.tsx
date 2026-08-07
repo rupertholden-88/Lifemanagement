@@ -42,7 +42,7 @@ export function FitnessTab() {
             <select
               value={wfhDay}
               onChange={(e) => setWfhDay(e.target.value as DayOfWeek)}
-              className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm font-medium text-navy-900"
+              className="min-h-10 rounded-lg border border-slate-300 px-2 py-2 text-sm font-medium text-navy-900"
               title="Strength B (the longer session) follows your work-from-home day"
             >
               {DAYS_OF_WEEK.map((d) => (

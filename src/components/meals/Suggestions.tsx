@@ -59,19 +59,19 @@ export function Suggestions() {
           <button
             key={t.value}
             onClick={() => setType(t.value)}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+            className={`min-h-10 rounded-full px-4 py-2 text-sm font-medium transition ${
               type === t.value ? 'bg-navy-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             {t.label}
           </button>
         ))}
-        <label className="ml-auto flex items-center gap-1.5 text-sm text-slate-600">
+        <label className="ml-auto flex min-h-10 items-center gap-2 px-1 text-sm text-slate-600">
           <input
             type="checkbox"
             checked={onlyLiked}
             onChange={(e) => setOnlyLiked(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+            className="h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
           />
           Only liked
         </label>

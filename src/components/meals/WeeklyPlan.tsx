@@ -79,12 +79,12 @@ export function WeeklyPlan() {
                 date === today ? 'border-teal-300 bg-teal-50/40' : 'border-slate-200 bg-white'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 <div className="w-16 shrink-0 text-xs font-medium text-slate-400">{formatDayLabel(date)}</div>
                 <select
                   value={entry?.mealId ?? ''}
                   onChange={(e) => setWeeklyPlanDay(day, e.target.value || null)}
-                  className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm font-medium text-navy-900"
+                  className="min-h-10 min-w-0 flex-1 rounded-lg border border-slate-300 px-2 py-2 text-sm font-medium text-navy-900"
                 >
                   <option value="">— choose dinner —</option>
                   {dinnerOptions.map((m) => (
@@ -93,21 +93,24 @@ export function WeeklyPlan() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="flex items-center gap-2 pl-19 sm:shrink-0 sm:pl-0">
                 {availability && (
                   <Badge className={availability.missing.length === 0 ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' : 'bg-amber-50 text-amber-700 ring-amber-600/20'}>
                     {availability.matched.length}/{meal!.ingredients.length} in stock
                   </Badge>
                 )}
+                {meal && (
+                  <button
+                    onClick={() => handleCook(meal.id, date)}
+                    disabled={cooked}
+                    className="ml-auto min-h-10 whitespace-nowrap rounded-lg bg-teal-600 px-3 text-sm font-medium text-white transition hover:bg-teal-500 disabled:bg-slate-200 disabled:text-slate-500 sm:ml-0"
+                  >
+                    {cooked ? '✓ Cooked' : 'Cook this'}
+                  </button>
+                )}
               </div>
-              {meal && (
-                <button
-                  onClick={() => handleCook(meal.id, date)}
-                  disabled={cooked}
-                  className="self-start rounded-lg bg-teal-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-teal-500 disabled:bg-slate-200 disabled:text-slate-500 sm:self-auto"
-                >
-                  {cooked ? '✓ Cooked' : 'Cook this'}
-                </button>
-              )}
             </div>
           )
         })}
