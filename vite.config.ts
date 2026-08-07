@@ -31,7 +31,7 @@ function recipeSummaryDevApi(): Plugin {
     try {
       const { parseRecipeFromHtml } = await import('./server/recipeParser.ts')
       const upstream = await fetch(parsed.toString(), {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; HomeBaseRecipeBot/1.0)', Accept: 'text/html' },
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LifeManagementRecipeBot/1.0)', Accept: 'text/html' },
         redirect: 'follow',
         signal: AbortSignal.timeout(10000),
       })

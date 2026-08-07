@@ -1,4 +1,4 @@
-# Home Base
+# Life Management
 
 A personal life-management app: fitness tracking, meal planning, a recipe bank, and household inventory — built around the Weekly Fitness Plan and Weekly Meal Plan.
 
