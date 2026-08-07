@@ -16,9 +16,9 @@ export function AppShell({ section, onSectionChange }: AppShellProps) {
   const { email, localMode, signOutUser } = useAuth()
 
   return (
-    <div className="min-h-screen bg-slate-50 lg:flex">
+    <div className="min-h-screen bg-paper-50 lg:flex">
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-navy-950 px-4 py-6 lg:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-navy-900 bg-gradient-to-b from-navy-950 to-navy-900 px-4 py-6 lg:flex">
         <div className="mb-8 px-2">
           <span className="font-display text-xl font-semibold text-white">Life Management</span>
         </div>
@@ -56,7 +56,7 @@ export function AppShell({ section, onSectionChange }: AppShellProps) {
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-paper-200 bg-paper-50/95 px-4 py-3 backdrop-blur lg:hidden">
         <span className="font-display text-lg font-semibold text-navy-900">Life Management</span>
         {!localMode && (
           <button onClick={() => signOutUser()} className="text-sm font-medium text-teal-700">
@@ -72,7 +72,7 @@ export function AppShell({ section, onSectionChange }: AppShellProps) {
       </main>
 
       {/* Mobile bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-slate-200 bg-white/95 backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-paper-200 bg-white/95 backdrop-blur lg:hidden">
         {NAV_ITEMS.map((item) => (
           <button
             key={item.id}

@@ -12,7 +12,7 @@ export function RecipeCard({ recipe, onToggleLiked, onDelete }: RecipeCardProps)
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div className="rounded-xl border border-paper-200 bg-white p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">

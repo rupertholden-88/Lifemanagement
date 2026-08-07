@@ -11,12 +11,20 @@ interface InventoryItemRowProps {
   onDelete: () => void
 }
 
+/** Left-edge accent so low and empty items stand out when scanning the list. */
+const LEVEL_ACCENT: Record<StockLevel, string> = {
+  out: 'border-l-red-400',
+  low: 'border-l-amber-400',
+  medium: 'border-l-sky-300',
+  high: 'border-l-emerald-400',
+}
+
 export function InventoryItemRow({ item, onAdjustQuantity, onSetLevel, onEdit, onDelete }: InventoryItemRowProps) {
   const level = getEffectiveLevel(item)
   const lowStock = level === 'out' || level === 'low'
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between">
+    <div className={`flex flex-col gap-3 rounded-xl border border-l-4 border-paper-200 bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between ${LEVEL_ACCENT[level]}`}>
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <p className="font-medium text-navy-900">{item.name}</p>

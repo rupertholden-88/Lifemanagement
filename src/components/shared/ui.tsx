@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 ${className}`}>
+    <div className={`min-w-0 rounded-2xl border border-paper-200 bg-white p-4 shadow-sm sm:p-5 ${className}`}>
       {children}
     </div>
   )

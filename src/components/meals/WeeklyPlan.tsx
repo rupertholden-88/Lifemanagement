@@ -76,7 +76,7 @@ export function WeeklyPlan() {
             <div
               key={day}
               className={`flex flex-col gap-2 rounded-xl border p-3.5 sm:flex-row sm:items-center sm:justify-between ${
-                date === today ? 'border-teal-300 bg-teal-50/40' : 'border-slate-200 bg-white'
+                date === today ? 'border-teal-300 bg-teal-50/50' : 'border-paper-200 bg-white'
               }`}
             >
               <div className="flex min-w-0 flex-1 items-center gap-3">

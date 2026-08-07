@@ -111,7 +111,7 @@ function StockView() {
       {lowStockCount > 0 && (
         <button
           onClick={() => setLowOnly(true)}
-          className="mb-4 flex w-full items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left text-sm text-amber-800 hover:bg-amber-100"
+          className="mb-4 flex w-full items-center gap-2 rounded-xl border border-clay-500/25 bg-clay-100 px-4 py-3 text-left text-sm text-clay-700 hover:brightness-98"
         >
           <span className="text-lg">⚠️</span>
           <span>
@@ -184,7 +184,7 @@ function StockView() {
                 </div>
               ) : (
                 <div className="mb-2 flex items-center gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{subcategory}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-teal-700/70">{subcategory}</p>
                   <button
                     onClick={() => startRename(subcategory)}
                     className="min-h-10 rounded-md px-2 text-xs font-medium text-slate-400 transition hover:bg-slate-100 hover:text-teal-700"

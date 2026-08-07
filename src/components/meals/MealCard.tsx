@@ -27,7 +27,7 @@ export function MealCard({
   const ready = availability.missing.length === 0
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3.5">
+    <div className="rounded-xl border border-paper-200 bg-white p-3.5">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex flex-wrap items-center gap-1.5">

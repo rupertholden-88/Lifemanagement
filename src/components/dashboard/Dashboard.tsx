@@ -10,7 +10,7 @@ import { isLowStock } from '../../lib/inventory'
 import { checkMealAvailability } from '../../lib/meals'
 import { isoToday } from '../../lib/date'
 import { weeklyScoreFor } from '../../lib/fitnessScoring'
-import { Card, SectionTitle, Badge, ProgressBar, Button } from '../shared/ui'
+import { Card, Badge, ProgressBar, Button } from '../shared/ui'
 import type { Section } from '../shared/nav'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const
@@ -24,6 +24,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
   const { cookMeal } = useCookMeal()
   const [banner, setBanner] = useState<string | null>(null)
 
+  const todayLabel = new Date().toLocaleDateString(undefined, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
   const schedule = useMemo(() => scheduleForWfhDay(wfhDay), [wfhDay])
   const today = isoToday()
   const todayDayName = DAY_NAMES[new Date().getDay()]
@@ -51,15 +56,35 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
 
   return (
     <div>
-      <SectionTitle title="Welcome back" subtitle="Here's today at a glance" />
+      <div className="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-navy-950 via-navy-900 to-teal-600 p-5 text-white shadow-sm sm:p-6">
+        <p className="text-xs font-medium uppercase tracking-widest text-teal-200">{todayLabel}</p>
+        <h1 className="font-display mt-1 text-2xl font-semibold sm:text-3xl">Welcome back</h1>
+        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <span className="text-slate-200">
+            <span className="font-display text-lg font-semibold text-white">{score.earned}</span>
+            <span className="text-slate-300"> / {WEEKLY_MAX_POINTS} pts this week</span>
+          </span>
+          <span className="text-slate-200">
+            <span className="font-display text-lg font-semibold text-white">{lowStockItems.length}</span>
+            <span className="text-slate-300"> to restock</span>
+          </span>
+        </div>
+      </div>
 
       {banner && <div className="mb-4 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">{banner}</div>}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-semibold text-navy-900">Today's session</p>
-            {todaySession && <Badge className="bg-slate-100 text-slate-600 ring-slate-500/10">{todaySession.duration}</Badge>}
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-clay-100 text-base">
+                🏃
+              </span>
+              <p className="text-sm font-semibold text-navy-900">Today's session</p>
+            </div>
+            {todaySession && todaySession.duration !== '—' && (
+              <Badge className="bg-clay-100 text-clay-700 ring-clay-500/20">{todaySession.duration}</Badge>
+            )}
           </div>
           {todaySession ? (
             <>
@@ -86,8 +111,13 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
         </Card>
 
         <Card>
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-semibold text-navy-900">Tonight's dinner</p>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-600/10 text-base">
+                🍽️
+              </span>
+              <p className="text-sm font-semibold text-navy-900">Tonight's dinner</p>
+            </div>
             {dinnerAvailability && (
               <Badge className={dinnerAvailability.missing.length === 0 ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' : 'bg-amber-50 text-amber-700 ring-amber-600/20'}>
                 {dinnerAvailability.matched.length}/{todayDinner!.ingredients.length} in stock
@@ -120,9 +150,14 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <Card>
-          <p className="mb-2 text-sm font-semibold text-navy-900">This week's fitness score</p>
+          <div className="mb-3 flex items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-plum-100 text-base">
+              📈
+            </span>
+            <p className="text-sm font-semibold text-navy-900">This week's fitness score</p>
+          </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-semibold text-navy-900">{score.earned}</span>
+            <span className="font-display text-3xl font-semibold text-plum-600">{score.earned}</span>
             <span className="text-sm text-slate-400">/ {WEEKLY_MAX_POINTS} pts</span>
           </div>
           <ProgressBar value={score.percent} className="mt-2" />
@@ -132,7 +167,12 @@ export function Dashboard({ onNavigate }: { onNavigate: (section: Section) => vo
         </Card>
 
         <Card>
-          <p className="mb-2 text-sm font-semibold text-navy-900">Household inventory</p>
+          <div className="mb-3 flex items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-base">
+              📦
+            </span>
+            <p className="text-sm font-semibold text-navy-900">Household inventory</p>
+          </div>
           {lowStockItems.length === 0 ? (
             <p className="text-sm text-slate-500">Everything's well stocked. 👍</p>
           ) : (
