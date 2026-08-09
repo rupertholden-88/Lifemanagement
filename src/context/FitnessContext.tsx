@@ -3,7 +3,7 @@ import { useSyncedList } from '../hooks/useSyncedList'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { useAuth } from './AuthContext'
 import { QUALITY_RUN_ROTATION } from '../data/fitnessPlan'
-import type { ExerciseLog, MetricEntry, QualityRunWeek } from '../types'
+import type { AdHocActivity, ExerciseLog, MetricEntry, QualityRunWeek } from '../types'
 
 interface LogSessionInput {
   sessionId: string
@@ -19,11 +19,14 @@ interface LogSessionInput {
 interface FitnessContextValue {
   exerciseLogs: ExerciseLog[]
   metricEntries: MetricEntry[]
+  adHocActivities: AdHocActivity[]
   planStartDate: string
   logSession: (input: LogSessionInput) => void
   removeLog: (logId: string) => void
   addMetricEntry: (entry: Omit<MetricEntry, 'id'>) => void
   removeMetricEntry: (id: string) => void
+  logAdHocActivity: (input: Omit<AdHocActivity, 'id'>) => void
+  removeAdHocActivity: (id: string) => void
   currentQualityWeek: QualityRunWeek
 }
 
@@ -44,6 +47,12 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
   const { items: metricEntries, set: setMetric, remove: removeMetricItem } = useSyncedList<MetricEntry>(
     'hb.fitness.metrics',
     'fitnessMetrics',
+    uid,
+    [],
+  )
+  const { items: adHocActivities, set: setAdHoc, remove: removeAdHocItem } = useSyncedList<AdHocActivity>(
+    'hb.fitness.adhoc',
+    'fitnessAdHoc',
     uid,
     [],
   )
@@ -72,6 +81,12 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
 
   const removeMetricEntry = (id: string) => removeMetricItem(id)
 
+  const logAdHocActivity = (input: Omit<AdHocActivity, 'id'>) => {
+    setAdHoc({ ...input, id: `adhoc-${Date.now()}` })
+  }
+
+  const removeAdHocActivity = (id: string) => removeAdHocItem(id)
+
   const currentQualityWeek = useMemo(() => {
     const start = new Date(planStartDate)
     const now = new Date()
@@ -83,11 +98,14 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
   const value: FitnessContextValue = {
     exerciseLogs,
     metricEntries,
+    adHocActivities,
     planStartDate,
     logSession,
     removeLog,
     addMetricEntry,
     removeMetricEntry,
+    logAdHocActivity,
+    removeAdHocActivity,
     currentQualityWeek,
   }
 

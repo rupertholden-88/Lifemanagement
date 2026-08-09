@@ -4,19 +4,22 @@ import { useSettings } from '../../context/SettingsContext'
 import { FITNESS_RULES, HEART_RATE_ZONES, QUALITY_RUN_ROTATION, WEEKLY_MAX_POINTS, scheduleForWfhDay } from '../../data/fitnessPlan'
 import { getWeekDates, formatDayLabel, weekRangeLabel, weeksSince, isoToday } from '../../lib/date'
 import { weeklyScoreFor, computeStreak } from '../../lib/fitnessScoring'
-import { Card, IconButton } from '../shared/ui'
-import { ChevronLeftIcon, ChevronRightIcon } from '../shared/icons'
+import { Button, Card, IconButton } from '../shared/ui'
+import { ActivityIcon, ChevronLeftIcon, ChevronRightIcon } from '../shared/icons'
 import { SessionCard } from './SessionCard'
 import { SessionLogModal } from './SessionLogModal'
+import { AdHocActivityModal } from './AdHocActivityModal'
 import { WeeklyScoreCard } from './WeeklyScoreCard'
 import { ProgressMetrics } from './ProgressMetrics'
 import { DAYS_OF_WEEK, type DayOfWeek, type FitnessSession } from '../../types'
 
 export function FitnessTab() {
-  const { exerciseLogs, logSession, removeLog, planStartDate } = useFitness()
+  const { exerciseLogs, logSession, removeLog, planStartDate, adHocActivities, logAdHocActivity, removeAdHocActivity } =
+    useFitness()
   const { wfhDay, setWfhDay } = useSettings()
   const [weekOffset, setWeekOffset] = useState(0)
   const [activeSession, setActiveSession] = useState<{ session: FitnessSession; date: string; dateLabel: string } | null>(null)
+  const [adHocOpen, setAdHocOpen] = useState(false)
 
   const schedule = useMemo(() => scheduleForWfhDay(wfhDay), [wfhDay])
   const week = useMemo(() => getWeekDates(new Date(), weekOffset), [weekOffset])
@@ -31,6 +34,8 @@ export function FitnessTab() {
   const today = isoToday()
 
   const logsByKey = new Map(exerciseLogs.map((l) => [`${l.sessionId}-${l.date}`, l]))
+  const weekDates = new Set(week.map((w) => w.date))
+  const weekAdHoc = adHocActivities.filter((a) => weekDates.has(a.date)).sort((a, b) => (a.date < b.date ? -1 : 1))
 
   return (
     <div>
@@ -71,6 +76,13 @@ export function FitnessTab() {
         />
       </div>
 
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-[15px] font-semibold text-ink">This week&rsquo;s plan</p>
+        <Button variant="secondary" onClick={() => setAdHocOpen(true)}>
+          + Log something else
+        </Button>
+      </div>
+
       <div>
         {week.map(({ day, date }) => {
           const session = schedule.find((s) => s.day === day)
@@ -89,6 +101,32 @@ export function FitnessTab() {
           )
         })}
       </div>
+
+      {weekAdHoc.length > 0 && (
+        <div className="mt-6 border-t-2 border-ink pt-4">
+          <p className="mb-1 text-[10.5px] font-semibold tracking-[0.14em] text-neutral-600 uppercase">Other activity this week</p>
+          <div>
+            {weekAdHoc.map((a) => (
+              <div key={a.id} className="flex items-start gap-3 border-t-2 border-divider py-3 first:border-t-0">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-ink">
+                  <ActivityIcon width={16} height={16} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-heading font-semibold text-ink">{a.activity}</p>
+                  <p className="text-xs text-neutral-600">
+                    {formatDayLabel(a.date)}
+                    {a.durationMin ? ` · ${a.durationMin} min` : ''}
+                  </p>
+                  {a.notes && <p className="mt-1 text-sm text-neutral-700">{a.notes}</p>}
+                </div>
+                <button onClick={() => removeAdHocActivity(a.id)} className="text-xs font-medium text-neutral-400 hover:text-accent-700">
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-8">
         <ProgressMetrics />
@@ -139,6 +177,8 @@ export function FitnessTab() {
           }}
         />
       )}
+
+      <AdHocActivityModal open={adHocOpen} onClose={() => setAdHocOpen(false)} onSave={logAdHocActivity} />
     </div>
   )
 }

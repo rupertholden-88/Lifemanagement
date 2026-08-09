@@ -59,6 +59,15 @@ export interface ExerciseLog {
   pointsEarned: number
 }
 
+/** Something you did that wasn't on the plan — logged for the record, doesn't count toward the weekly score. */
+export interface AdHocActivity {
+  id: string
+  date: string // ISO yyyy-mm-dd
+  activity: string // free text — "Golf", "Light run", whatever it was
+  durationMin?: number
+  notes?: string
+}
+
 export type MetricKey = 'weight' | 'restingHr' | 'bodyFat' | 'fiveKMinutes'
 
 export interface MetricEntry {
