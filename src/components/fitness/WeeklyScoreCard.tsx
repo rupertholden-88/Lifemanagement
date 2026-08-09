@@ -7,9 +7,17 @@ interface WeeklyScoreCardProps {
   sessionsLogged: number
   totalSessions: number
   streak: number
+  longestStreak: number
 }
 
-export function WeeklyScoreCard({ earned, max, sessionsLogged, totalSessions, streak }: WeeklyScoreCardProps) {
+export function WeeklyScoreCard({
+  earned,
+  max,
+  sessionsLogged,
+  totalSessions,
+  streak,
+  longestStreak,
+}: WeeklyScoreCardProps) {
   const percent = max > 0 ? earned / max : 0
   return (
     <div>
@@ -34,6 +42,7 @@ export function WeeklyScoreCard({ earned, max, sessionsLogged, totalSessions, st
       {streak > 0 && (
         <p className="mt-2.5 flex items-center gap-1.5 text-[13px] text-accent-700">
           <FlameIcon width={14} height={14} /> {streak}-day streak
+          {longestStreak > streak && <span className="text-neutral-600">· best {longestStreak}</span>}
         </p>
       )}
     </div>

@@ -3,7 +3,7 @@ import { useFitness } from '../../context/FitnessContext'
 import { useSettings } from '../../context/SettingsContext'
 import { FITNESS_RULES, HEART_RATE_ZONES, QUALITY_RUN_ROTATION, WEEKLY_MAX_POINTS, scheduleForWfhDay } from '../../data/fitnessPlan'
 import { getWeekDates, formatDayLabel, weekRangeLabel, weeksSince, isoToday } from '../../lib/date'
-import { weeklyScoreFor, computeStreak } from '../../lib/fitnessScoring'
+import { weeklyScoreFor, computeStreakStats } from '../../lib/fitnessScoring'
 import { Button, Card, IconButton } from '../shared/ui'
 import { ActivityIcon, ChevronLeftIcon, ChevronRightIcon } from '../shared/icons'
 import { SessionCard } from './SessionCard'
@@ -30,7 +30,10 @@ export function FitnessTab() {
   }, [week, planStartDate])
 
   const score = useMemo(() => weeklyScoreFor(exerciseLogs, schedule, weekOffset), [exerciseLogs, schedule, weekOffset])
-  const streak = useMemo(() => computeStreak(exerciseLogs, schedule), [exerciseLogs, schedule])
+  const streak = useMemo(
+    () => computeStreakStats(exerciseLogs, adHocActivities, schedule),
+    [exerciseLogs, adHocActivities, schedule],
+  )
   const today = isoToday()
 
   const logsByKey = new Map(exerciseLogs.map((l) => [`${l.sessionId}-${l.date}`, l]))
@@ -72,7 +75,8 @@ export function FitnessTab() {
           max={WEEKLY_MAX_POINTS}
           sessionsLogged={score.sessionsLogged}
           totalSessions={schedule.filter((s) => s.type !== 'rest').length}
-          streak={streak}
+          streak={streak.current}
+          longestStreak={streak.longest}
         />
       </div>
 
