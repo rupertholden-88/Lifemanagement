@@ -239,6 +239,25 @@ export function FlameIcon(props: IconProps) {
   )
 }
 
+export function TrophyIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <path d="M6 2h12v7a6 6 0 0 1-12 0Z" />
+      <path d="M9 22h6M12 15v7" />
+    </Icon>
+  )
+}
+
+export function LockIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x={4} y={11} width={16} height={10} rx={2} />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </Icon>
+  )
+}
+
 export function ActivityIcon(props: IconProps) {
   return (
     <Icon {...props}>

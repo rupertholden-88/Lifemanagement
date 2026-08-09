@@ -10,6 +10,7 @@ import { SessionCard } from './SessionCard'
 import { SessionLogModal } from './SessionLogModal'
 import { AdHocActivityModal } from './AdHocActivityModal'
 import { WeeklyScoreCard } from './WeeklyScoreCard'
+import { Achievements } from './Achievements'
 import { ProgressMetrics } from './ProgressMetrics'
 import { DAYS_OF_WEEK, type DayOfWeek, type FitnessSession } from '../../types'
 
@@ -131,6 +132,10 @@ export function FitnessTab() {
           </div>
         </div>
       )}
+
+      <div className="mt-8">
+        <Achievements schedule={schedule} />
+      </div>
 
       <div className="mt-8">
         <ProgressMetrics />
