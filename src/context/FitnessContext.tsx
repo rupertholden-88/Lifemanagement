@@ -3,7 +3,7 @@ import { useSyncedList } from '../hooks/useSyncedList'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { useAuth } from './AuthContext'
 import { QUALITY_RUN_ROTATION } from '../data/fitnessPlan'
-import type { AdHocActivity, ExerciseLog, MetricEntry, QualityRunWeek } from '../types'
+import type { AdHocActivity, ExerciseLog, MetricEntry, QualityRunWeek, StrengthChoice } from '../types'
 
 interface LogSessionInput {
   sessionId: string
@@ -20,6 +20,7 @@ interface FitnessContextValue {
   exerciseLogs: ExerciseLog[]
   metricEntries: MetricEntry[]
   adHocActivities: AdHocActivity[]
+  strengthChoices: StrengthChoice[]
   planStartDate: string
   logSession: (input: LogSessionInput) => void
   removeLog: (logId: string) => void
@@ -27,6 +28,7 @@ interface FitnessContextValue {
   removeMetricEntry: (id: string) => void
   logAdHocActivity: (input: Omit<AdHocActivity, 'id'>) => void
   removeAdHocActivity: (id: string) => void
+  setStrengthChoice: (weekStart: string, sessionId: string, variantId: string) => void
   currentQualityWeek: QualityRunWeek
 }
 
@@ -53,6 +55,12 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
   const { items: adHocActivities, set: setAdHoc, remove: removeAdHocItem } = useSyncedList<AdHocActivity>(
     'hb.fitness.adhoc',
     'fitnessAdHoc',
+    uid,
+    [],
+  )
+  const { items: strengthChoices, set: setChoice } = useSyncedList<StrengthChoice>(
+    'hb.fitness.strengthChoices',
+    'fitnessStrengthChoices',
     uid,
     [],
   )
@@ -87,6 +95,10 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
 
   const removeAdHocActivity = (id: string) => removeAdHocItem(id)
 
+  const setStrengthChoice = (weekStart: string, sessionId: string, variantId: string) => {
+    setChoice({ id: `${weekStart}:${sessionId}`, weekStart, sessionId, variantId })
+  }
+
   const currentQualityWeek = useMemo(() => {
     const start = new Date(planStartDate)
     const now = new Date()
@@ -99,6 +111,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
     exerciseLogs,
     metricEntries,
     adHocActivities,
+    strengthChoices,
     planStartDate,
     logSession,
     removeLog,
@@ -106,6 +119,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
     removeMetricEntry,
     logAdHocActivity,
     removeAdHocActivity,
+    setStrengthChoice,
     currentQualityWeek,
   }
 

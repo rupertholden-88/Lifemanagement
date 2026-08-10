@@ -27,6 +27,14 @@ export interface ExerciseStep {
   cue: string
 }
 
+/** One interchangeable version of a strength session — same slot, different exercises. */
+export interface StrengthVariant {
+  id: string
+  name: string
+  focus: string
+  exercises: ExerciseStep[]
+}
+
 export interface FitnessSession {
   id: string
   day: DayOfWeek
@@ -35,7 +43,8 @@ export interface FitnessSession {
   duration: string
   detail: string
   points: number
-  exercises?: ExerciseStep[]
+  /** Strength sessions offer several routines; which one is live is chosen per week. */
+  variants?: StrengthVariant[]
   rounds?: number
   restBetweenRounds?: string
 }
@@ -57,6 +66,14 @@ export interface ExerciseLog {
   distanceKm?: number
   notes?: string
   pointsEarned: number
+}
+
+/** An explicit routine picked for one strength session in one week, overriding the rotation. */
+export interface StrengthChoice {
+  id: string // `${weekStart}:${sessionId}`
+  weekStart: string // ISO date of that week's Monday
+  sessionId: string
+  variantId: string
 }
 
 /** Something you did that wasn't on the plan — logged for the record, doesn't count toward the weekly score. */

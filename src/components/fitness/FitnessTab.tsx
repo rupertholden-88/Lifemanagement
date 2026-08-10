@@ -1,7 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useFitness } from '../../context/FitnessContext'
 import { useSettings } from '../../context/SettingsContext'
-import { FITNESS_RULES, HEART_RATE_ZONES, QUALITY_RUN_ROTATION, WEEKLY_MAX_POINTS, scheduleForWfhDay } from '../../data/fitnessPlan'
+import {
+  FITNESS_RULES,
+  HEART_RATE_ZONES,
+  QUALITY_RUN_ROTATION,
+  WEEKLY_MAX_POINTS,
+  scheduleForWfhDay,
+  variantForWeek,
+} from '../../data/fitnessPlan'
 import { getWeekDates, formatDayLabel, weekRangeLabel, weeksSince, isoToday } from '../../lib/date'
 import { weeklyScoreFor, computeStreakStats } from '../../lib/fitnessScoring'
 import { Button, Card, IconButton } from '../shared/ui'
@@ -15,8 +22,17 @@ import { ProgressMetrics } from './ProgressMetrics'
 import { DAYS_OF_WEEK, type DayOfWeek, type FitnessSession } from '../../types'
 
 export function FitnessTab() {
-  const { exerciseLogs, logSession, removeLog, planStartDate, adHocActivities, logAdHocActivity, removeAdHocActivity } =
-    useFitness()
+  const {
+    exerciseLogs,
+    logSession,
+    removeLog,
+    planStartDate,
+    adHocActivities,
+    logAdHocActivity,
+    removeAdHocActivity,
+    strengthChoices,
+    setStrengthChoice,
+  } = useFitness()
   const { wfhDay, setWfhDay } = useSettings()
   const [weekOffset, setWeekOffset] = useState(0)
   const [activeSession, setActiveSession] = useState<{ session: FitnessSession; date: string; dateLabel: string } | null>(null)
@@ -29,6 +45,18 @@ export function FitnessTab() {
     const idx = weeksSince(planStartDate, monday) % QUALITY_RUN_ROTATION.length
     return QUALITY_RUN_ROTATION[idx]
   }, [week, planStartDate])
+
+  const weekStart = week[0].date
+  const weekIndex = useMemo(
+    () => weeksSince(planStartDate, new Date(weekStart + 'T00:00:00')),
+    [planStartDate, weekStart],
+  )
+  const variantFor = (session: FitnessSession) =>
+    variantForWeek(
+      session,
+      weekIndex,
+      strengthChoices.find((c) => c.weekStart === weekStart && c.sessionId === session.id)?.variantId,
+    )
 
   const score = useMemo(() => weeklyScoreFor(exerciseLogs, schedule, weekOffset), [exerciseLogs, schedule, weekOffset])
   const streak = useMemo(
@@ -101,6 +129,7 @@ export function FitnessTab() {
               isToday={date === today}
               log={log}
               qualityTitle={session.type === 'run-quality' ? qualityWeek.title : undefined}
+              variantName={variantFor(session)?.name}
               onOpen={() => setActiveSession({ session, date, dateLabel: formatDayLabel(date) })}
             />
           )
@@ -177,6 +206,8 @@ export function FitnessTab() {
               ? { title: qualityWeek.title, detail: qualityWeek.detail }
               : undefined
           }
+          variant={variantFor(activeSession.session)}
+          onVariantChange={(variantId) => setStrengthChoice(weekStart, activeSession.session.id, variantId)}
           existingLog={logsByKey.get(`${activeSession.session.id}-${activeSession.date}`)}
           onSave={(input) => logSession({ sessionId: activeSession.session.id, date: activeSession.date, ...input })}
           onDelete={() => {

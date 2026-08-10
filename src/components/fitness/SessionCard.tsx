@@ -25,10 +25,12 @@ interface SessionCardProps {
   isToday: boolean
   log?: ExerciseLog
   qualityTitle?: string
+  /** Label of the strength routine running this week, if the session has variants. */
+  variantName?: string
   onOpen: () => void
 }
 
-export function SessionCard({ session, dateLabel, isToday, log, qualityTitle, onOpen }: SessionCardProps) {
+export function SessionCard({ session, dateLabel, isToday, log, qualityTitle, variantName, onOpen }: SessionCardProps) {
   const isRest = session.type === 'rest'
   const completed = Boolean(log)
   const TypeIcon = TYPE_ICON[session.type]
@@ -54,6 +56,7 @@ export function SessionCard({ session, dateLabel, isToday, log, qualityTitle, on
 
       <div className="flex items-center gap-2.5">
         <Tag>{session.duration}</Tag>
+        {variantName && <Tag>Routine {variantName}</Tag>}
         {session.points > 0 && <span className="text-[13px] text-neutral-600">{session.points} pts</span>}
         {completed && <Tag tone="ink">✓ {log!.pointsEarned} pts</Tag>}
         <div className="flex-1" />

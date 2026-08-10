@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Modal, Button, TextInput, TextArea, Banner } from '../shared/ui'
-import type { ExerciseLog, FitnessSession } from '../../types'
+import { Modal, Button, TextInput, TextArea, Banner, Segmented } from '../shared/ui'
+import type { ExerciseLog, FitnessSession, StrengthVariant } from '../../types'
 
 interface SessionLogModalProps {
   open: boolean
@@ -9,6 +9,9 @@ interface SessionLogModalProps {
   date: string
   dateLabel: string
   qualityDetail?: { title: string; detail: string }
+  /** The routine live for this week, and a way to switch it. */
+  variant?: StrengthVariant
+  onVariantChange?: (variantId: string) => void
   existingLog?: ExerciseLog
   onSave: (input: {
     completedExercises: string[]
@@ -27,11 +30,14 @@ export function SessionLogModal({
   session,
   dateLabel,
   qualityDetail,
+  variant,
+  onVariantChange,
   existingLog,
   onSave,
   onDelete,
 }: SessionLogModalProps) {
-  const hasExercises = Boolean(session.exercises?.length)
+  const exercises = variant?.exercises ?? []
+  const hasExercises = exercises.length > 0
 
   const [checked, setChecked] = useState<Set<string>>(
     new Set(existingLog?.completedExercises ?? (hasExercises ? [] : ['done'])),
@@ -53,12 +59,16 @@ export function SessionLogModal({
   }
 
   const handleSave = () => {
-    const totalItems = hasExercises ? session.exercises!.length : 1
-    const completedCount = checked.size
-    const pointsEarned = Math.round(session.points * (completedCount / totalItems))
+    // Switching routine mid-week can leave ticks for exercises the current one
+    // doesn't have; counting those would score above what was actually done.
+    const relevant = hasExercises
+      ? Array.from(checked).filter((name) => exercises.some((ex) => ex.name === name))
+      : Array.from(checked)
+    const totalItems = hasExercises ? exercises.length : 1
+    const pointsEarned = Math.round(session.points * (relevant.length / totalItems))
 
     onSave({
-      completedExercises: Array.from(checked),
+      completedExercises: relevant,
       durationMin: durationMin ? Number(durationMin) : undefined,
       avgHr: avgHr ? Number(avgHr) : undefined,
       distanceKm: distanceKm ? Number(distanceKm) : undefined,
@@ -77,10 +87,22 @@ export function SessionLogModal({
         </Banner>
       )}
 
+      {session.variants && session.variants.length > 1 && onVariantChange && (
+        <div className="mb-4">
+          <p className="mb-1.5 text-xs font-medium text-neutral-600">Routine for this week</p>
+          <Segmented
+            options={session.variants.map((v) => ({ id: v.id, label: v.name }))}
+            value={variant?.id ?? session.variants[0].id}
+            onChange={onVariantChange}
+          />
+          {variant && <p className="mt-1.5 text-xs text-neutral-600">{variant.focus}</p>}
+        </div>
+      )}
+
       {hasExercises ? (
         <div className="mb-4">
           <p className="mb-2 text-sm font-semibold text-ink">Exercises completed</p>
-          {session.exercises!.map((ex) => (
+          {exercises.map((ex) => (
             <label
               key={ex.name}
               className="flex cursor-pointer items-start gap-3 border-t-2 border-divider py-3 first:border-t-0"
