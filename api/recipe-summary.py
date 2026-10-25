@@ -8,6 +8,8 @@ and falls back to generic schema.org parsing for everything else.
 import ipaddress
 import json
 import re
+import socket
+import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
@@ -107,6 +109,20 @@ class handler(BaseHTTPRequestHandler):
             req = urllib.request.Request(target, headers=FETCH_HEADERS)
             with urllib.request.urlopen(req, timeout=10) as res:
                 html = res.read().decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as err:
+            if err.code in (401, 403, 429):
+                message = (
+                    f"{parsed.hostname} blocked the import (HTTP {err.code}) "
+                    "— add it manually instead"
+                )
+            else:
+                message = f"{parsed.hostname} returned HTTP {err.code}"
+            return self._send(502, {"error": message})
+        except (TimeoutError, socket.timeout):
+            return self._send(
+                504,
+                {"error": f"{parsed.hostname} took too long to respond — it may be blocking imports"},
+            )
         except Exception:
             return self._send(502, {"error": "Could not fetch that page"})
 
