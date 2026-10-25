@@ -8,11 +8,22 @@ and falls back to generic schema.org parsing for everything else.
 import ipaddress
 import json
 import re
+import socket
+import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
 from recipe_scrapers import scrape_html
+
+try:
+    from curl_cffi import requests as curl_requests
+    from curl_cffi.requests.exceptions import Timeout as CurlTimeout
+except ImportError:  # local runs without curl_cffi installed
+    curl_requests = None
+
+    class CurlTimeout(Exception):
+        pass
 
 FETCH_HEADERS = {
     "User-Agent": (
@@ -22,6 +33,38 @@ FETCH_HEADERS = {
     "Accept": "text/html,application/xhtml+xml",
     "Accept-Language": "en-GB,en;q=0.9",
 }
+
+
+class FetchError(Exception):
+    def __init__(self, code: int):
+        super().__init__(f"HTTP {code}")
+        self.code = code
+
+
+def fetch_html(url: str) -> str:
+    """Download a page, looking like a real Chrome browser where possible.
+
+    Sites such as Waitrose sit behind bot protection that rejects Python's
+    built-in HTTP client on its TLS fingerprint alone. curl_cffi presents
+    Chrome's fingerprint, so try it first and fall back to urllib.
+    """
+    if curl_requests is not None:
+        res = curl_requests.get(
+            url,
+            impersonate="chrome",
+            headers={"Accept-Language": FETCH_HEADERS["Accept-Language"]},
+            timeout=15,
+        )
+        if res.status_code >= 400:
+            raise FetchError(res.status_code)
+        return res.text
+
+    req = urllib.request.Request(url, headers=FETCH_HEADERS)
+    try:
+        with urllib.request.urlopen(req, timeout=10) as res:
+            return res.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as err:
+        raise FetchError(err.code) from err
 
 
 def is_blocked_host(hostname: str) -> bool:
@@ -104,9 +147,21 @@ class handler(BaseHTTPRequestHandler):
             return self._send(400, {"error": "That host is not allowed"})
 
         try:
-            req = urllib.request.Request(target, headers=FETCH_HEADERS)
-            with urllib.request.urlopen(req, timeout=10) as res:
-                html = res.read().decode("utf-8", errors="replace")
+            html = fetch_html(target)
+        except FetchError as err:
+            if err.code in (401, 403, 429):
+                message = (
+                    f"{parsed.hostname} blocked the import (HTTP {err.code}) "
+                    "— add it manually instead"
+                )
+            else:
+                message = f"{parsed.hostname} returned HTTP {err.code}"
+            return self._send(502, {"error": message})
+        except (TimeoutError, socket.timeout, CurlTimeout):
+            return self._send(
+                504,
+                {"error": f"{parsed.hostname} took too long to respond — it may be blocking imports"},
+            )
         except Exception:
             return self._send(502, {"error": "Could not fetch that page"})
 
